@@ -3,6 +3,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "realtimegraphs.h"
 
 
 
@@ -21,6 +22,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+    RealTimeGraphs *rtg;
 };
 
 #endif // MAINWINDOW_H
