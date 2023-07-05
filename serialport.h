@@ -21,8 +21,8 @@ public:
 
     QList<QSerialPortInfo> getSerialPortInfo(void);
 
-    void openSerialPort(QString port_name);
-    void closeSerialPort();
+    bool openSerialPort(QString port_name);
+    bool closeSerialPort();
 
 private:
     QSerialPort *m_pserial = nullptr;

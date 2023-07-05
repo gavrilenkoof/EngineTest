@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_pserial = new SerialPort(this);
 
     connect(m_pserial, SIGNAL(updateSerialList()), this, SLOT(serialListHandler()));
-    connect(m_pserial, SIGNAL(showStatusMessage(QString const)), this, SLOT(consoleInfo(QString const)));
+    connect(m_pserial, SIGNAL(showStatusMessage(QString)), this, SLOT(consoleInfo(QString)));
 
 }
 
@@ -51,13 +51,19 @@ void MainWindow::serialListHandler()
 void MainWindow::btnConnectionSerial(bool state)
 {
     if(state){
-        ui->btn_connection->setText("&Disconnect");
 //        qDebug() << state << "Open serial port" << ui->combo_box_serials->currentText();
-        m_pserial->openSerialPort(ui->combo_box_serials->currentText());
+        if(m_pserial->openSerialPort(ui->combo_box_serials->currentText())){
+            ui->btn_connection->setText("&Disconnect");
+        }else{
+            ui->btn_connection->setChecked(false);
+        }
     }else{
-        ui->btn_connection->setText("&Connect");
 //        qDebug() << state << "Close serial port";
-        m_pserial->closeSerialPort();
+        if(m_pserial->closeSerialPort()){
+            ui->btn_connection->setText("&Connect");
+        }else{
+            ui->btn_connection->setChecked(true);
+        }
     }
 }
 
