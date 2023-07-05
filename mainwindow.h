@@ -3,7 +3,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "realtimegraphs.h"
+#include "serialport.h"
 
 
 
@@ -23,7 +23,7 @@ public:
 private:
     Ui::MainWindow *ui;
 
-    RealTimeGraphs *rtg;
+    SerialPort *m_pserial = nullptr;
 };
 
 #endif // MAINWINDOW_H

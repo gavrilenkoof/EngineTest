@@ -13,13 +13,15 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     qcustomplot.cpp \
-    realtimegraphs.cpp
+    realtimegraphs.cpp \
+    serialport.cpp
 
 HEADERS += \
     axistag.h \
     mainwindow.h \
     qcustomplot.h \
-    realtimegraphs.h
+    realtimegraphs.h \
+    serialport.h
 
 FORMS += \
     mainwindow.ui \

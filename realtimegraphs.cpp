@@ -10,10 +10,11 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     // Configuration first graph
     ui->plot_1->yAxis->setTickLabels(false);
     ui->plot_1->yAxis2->setVisible(true);
-//    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(20);
+    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(20);
     ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setLabel("RPM");
     ui->plot_1->axisRect()->axis(QCPAxis::atBottom, 0)->setLabel("Seconds (s)");
     ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setTickLabelPadding(10);
+    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-5, 5);
 
 //    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setNumberPrecision(2);
 
@@ -106,7 +107,7 @@ void RealTimeGraphs::timerSlot()
         ui->plot_2->graph(0)->addData(m_seconds.back(), m_values_2.back());
 
         ui->plot_1->xAxis->rescale(true);
-        ui->plot_1->yAxis2->rescale(true);
+//        ui->plot_1->yAxis2->rescale(true);
 
         ui->plot_2->xAxis->rescale(true);
         ui->plot_2->yAxis2->rescale(true);
@@ -115,6 +116,16 @@ void RealTimeGraphs::timerSlot()
             ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
             ui->plot_2->xAxis->setRange(ui->plot_2->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
         }
+
+        double graphValue = ui->plot_1->graph(0)->dataMainValue(ui->plot_1->graph(0)->dataCount() - 1);
+        m_tag1->updatePosition(graphValue);
+        m_tag1->setText(QString::number(graphValue, 'f', 3));
+
+        graphValue = ui->plot_2->graph(0)->dataMainValue(ui->plot_2->graph(0)->dataCount() - 1);
+        m_tag2->updatePosition(graphValue);
+        m_tag2->setText(QString::number(graphValue, 'f', 3));
+
+
 
         m_update_val_plot = false;
         ui->plot_1->replot();

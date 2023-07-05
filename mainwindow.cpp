@@ -11,6 +11,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     setWindowTitle("Engine test");
 
+
+    m_pserial = new SerialPort;
+
 }
 
 MainWindow::~MainWindow()
