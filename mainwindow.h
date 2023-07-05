@@ -23,6 +23,7 @@ public:
 private slots:
     void serialListHandler();
     void btnConnectionSerial(bool state);
+    void consoleInfo(QString const message);
 
 private:
     Ui::MainWindow *ui;

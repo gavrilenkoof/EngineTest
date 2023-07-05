@@ -45,6 +45,11 @@
             <height>20</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>TextLabel</string>
           </property>
@@ -72,6 +77,11 @@
               <height>20</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>PushButton</string>
             </property>
@@ -97,6 +107,11 @@
               <height>20</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
            </widget>
           </item>
          </layout>
@@ -121,6 +136,11 @@
             <height>16777215</height>
            </size>
           </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
          </widget>
         </item>
         <item>
@@ -144,6 +164,11 @@
               <width>200</width>
               <height>20</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>TextLabel</string>
@@ -170,6 +195,11 @@
               <height>20</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>TextLabel</string>
             </property>
@@ -195,6 +225,11 @@
               <height>20</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>TextLabel</string>
             </property>
@@ -219,6 +254,11 @@
               <width>200</width>
               <height>20</height>
              </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>TextLabel</string>

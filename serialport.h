@@ -15,9 +15,18 @@ public:
     explicit SerialPort(QObject *parent = nullptr);
     ~SerialPort();
 
+    bool isOpen() const{
+        return m_pserial->isOpen();
+    }
+
     QList<QSerialPortInfo> getSerialPortInfo(void);
 
+    void openSerialPort(QString port_name);
+    void closeSerialPort();
+
 private:
+    QSerialPort *m_pserial = nullptr;
+
     QTimer m_timer_upd_serials;
 
 private slots:
@@ -25,6 +34,7 @@ private slots:
 
 signals:
     void updateSerialList();
+    void showStatusMessage(QString const message);
 };
 
 #endif // SERIALPORT_H

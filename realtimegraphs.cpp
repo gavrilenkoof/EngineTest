@@ -14,7 +14,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setLabel("RPM");
     ui->plot_1->axisRect()->axis(QCPAxis::atBottom, 0)->setLabel("Seconds (s)");
     ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setTickLabelPadding(10);
-    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-5, 5);
+    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-50, 50);
 
 //    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setNumberPrecision(2);
 
@@ -41,6 +41,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 //    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setNumberPrecision(2);
     ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setTickLabelPadding(10);
 //    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setNumberFormat("f");  // TODO FIX moving yaxis2
+    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-5, 5);
 
     ui->plot_2->legend->setVisible(true);
     ui->plot_2->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
@@ -78,8 +79,8 @@ void RealTimeGraphs::valuesReceived()
     static int const size = 500;
     static int i = 0;
 
-    double new_val = qSin(i/50.0) + qSin(i/50.0/0.3843)*0.25;
-    double new_val2 = 50*qSin(i/50.0) + 10*qSin(i/50.0/0.3843)*0.25;
+    double new_val2 = qSin(i/50.0) + qSin(i/50.0/0.3843)*0.25;
+    double new_val = 50*qSin(i/50.0) + 10*qSin(i/50.0/0.3843)*0.25;
 
     ++i;
 
@@ -110,7 +111,7 @@ void RealTimeGraphs::timerSlot()
 //        ui->plot_1->yAxis2->rescale(true);
 
         ui->plot_2->xAxis->rescale(true);
-        ui->plot_2->yAxis2->rescale(true);
+//        ui->plot_2->yAxis2->rescale(true);
 
         if(m_seconds.back() >= m_x_axis_range){
             ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
