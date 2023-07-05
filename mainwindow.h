@@ -22,6 +22,7 @@ public:
 
 private slots:
     void serialListHandler();
+    void btnConnectionSerial(bool state);
 
 private:
     Ui::MainWindow *ui;

@@ -9,8 +9,21 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    /*
+     * UI configuration
+     */
     setWindowTitle("Engine test");
+    ui->lbl_status->setText("Status: not connected");
 
+    // btn configuration
+    ui->btn_connection->setText("&Connect");
+    ui->btn_connection->setCheckable(true);
+
+    connect(ui->btn_connection, SIGNAL(toggled(bool)), this, SLOT(btnConnectionSerial(bool)));
+
+    /*
+     * Serial
+     */
     m_pserial = new SerialPort(this);
 
     connect(m_pserial, SIGNAL(updateSerialList()), this, SLOT(serialListHandler()));
@@ -32,6 +45,11 @@ void MainWindow::serialListHandler()
     for(QSerialPortInfo const &info: info_serials){
         ui->combo_box_serials->addItem(info.portName());
     }
+}
+
+void MainWindow::btnConnectionSerial(bool state)
+{
+    qDebug() << state;
 }
 
 
