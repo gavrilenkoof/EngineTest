@@ -10,6 +10,8 @@ SerialPort::SerialPort(QObject *parent)
 
     connect(m_pserial, &QSerialPort::errorOccurred, this, &SerialPort::handleError);
 
+    connect(m_pserial, &QSerialPort::readyRead, this, &SerialPort::readData);
+
 }
 
 
@@ -43,6 +45,11 @@ bool SerialPort::openSerialPort(QString port_name)
 
     if(!m_pserial->isOpen()){
         m_pserial->setPortName(port_name);
+        m_pserial->setBaudRate(9600);
+        m_pserial->setDataBits(QSerialPort::DataBits::Data8);
+        m_pserial->setParity(QSerialPort::Parity::NoParity);
+        m_pserial->setStopBits(QSerialPort::StopBits::OneStop);
+        m_pserial->setFlowControl(QSerialPort::FlowControl::NoFlowControl);
         if(m_pserial->open(QIODevice::ReadWrite)){
             qDebug() << "Connected to " << m_pserial->portName() << ":" << m_pserial->baudRate()
                      << "," << m_pserial->dataBits() << "," << m_pserial->parity() << "," << m_pserial->stopBits()
@@ -74,6 +81,17 @@ bool SerialPort::closeSerialPort()
     m_pserial->setPortName("");
 
     return true;
+}
+
+void SerialPort::readData()
+{
+    qint64 data_count = m_pserial->bytesAvailable();
+
+    // Data stored in the buffer (for comfortable reading set 100 bytes)
+    if(data_count > 100){
+        const QByteArray data = m_pserial->readLine();
+        qDebug() << data;
+    }
 }
 
 void SerialPort::handleError(QSerialPort::SerialPortError error)

@@ -36,6 +36,7 @@ private:
 private slots:
     void timerSlotUpdCountSerials();
     void handleError(QSerialPort::SerialPortError error);
+    void readData();
 
 signals:
     void updateSerialList();
