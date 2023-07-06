@@ -24,6 +24,8 @@ private slots:
     void timerSlot();
     void valuesReceived();
 
+    void newDataHandler(QByteArray data);
+
 private:
     Ui::RealTimeGraphs *ui;
 

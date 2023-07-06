@@ -44,6 +44,8 @@ signals:
 
     void resourceError();
 
+    void newDataAvailable(QByteArray data);
+
 };
 
 #endif // SERIALPORT_H

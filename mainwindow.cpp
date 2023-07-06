@@ -30,12 +30,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_pserial, SIGNAL(showStatusMessage(QString)), this, SLOT(consoleInfo(QString)));
 
     connect(m_pserial, SIGNAL(resourceError()), this, SLOT(resourceErrorHandler()));
-//    connect(m_pserial, SIGNAL(resourceError()), this, SLOT(resourceErrorHandler()));
+
+    connect(m_pserial, SIGNAL(newDataAvailable(QByteArray)), ui->realTimeGraphs, SLOT(newDataHandler(QByteArray)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    m_pserial->closeSerialPort();
 }
 
 

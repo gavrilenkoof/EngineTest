@@ -283,7 +283,7 @@
        </layout>
       </item>
       <item>
-       <widget class="RealTimeGraphs" name="widget" native="true">
+       <widget class="RealTimeGraphs" name="realTimeGraphs" native="true">
         <property name="enabled">
          <bool>true</bool>
         </property>

@@ -3,6 +3,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QCloseEvent>
+
 #include "serialport.h"
 
 
@@ -31,6 +33,8 @@ private:
     Ui::MainWindow *ui;
 
     SerialPort *m_pserial = nullptr;
+
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H

@@ -89,8 +89,8 @@ void SerialPort::readData()
 
     // Data stored in the buffer (for comfortable reading set 100 bytes)
     if(data_count > 100){
-        const QByteArray data = m_pserial->readLine();
-        qDebug() << data;
+        QByteArray data = m_pserial->readLine();
+        emit newDataAvailable(data);
     }
 }
 
