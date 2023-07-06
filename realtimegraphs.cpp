@@ -75,9 +75,9 @@ RealTimeGraphs::~RealTimeGraphs()
 void RealTimeGraphs::newDataHandler(QByteArray data)
 {
     /*
-     * T - 0
-     * R - 1
-     * Tm - 2
+     * T - 0 : torque (N*m)
+     * R - 1 : rpm
+     * Tm - 2 : time (ms)
      */
     qDebug() << data;
     static int const size = 500;
