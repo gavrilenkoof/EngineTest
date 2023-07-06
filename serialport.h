@@ -19,6 +19,10 @@ public:
         return m_pserial->isOpen();
     }
 
+    QString errorString(){
+        return m_pserial->errorString();
+    }
+
     QList<QSerialPortInfo> getSerialPortInfo(void);
 
     bool openSerialPort(QString port_name);
@@ -36,6 +40,9 @@ private slots:
 signals:
     void updateSerialList();
     void showStatusMessage(QString const message);
+
+    void resourceError();
+
 };
 
 #endif // SERIALPORT_H

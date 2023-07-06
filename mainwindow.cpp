@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_pserial, SIGNAL(updateSerialList()), this, SLOT(serialListHandler()));
     connect(m_pserial, SIGNAL(showStatusMessage(QString)), this, SLOT(consoleInfo(QString)));
 
+    connect(m_pserial, SIGNAL(resourceError()), this, SLOT(resourceErrorHandler()));
+//    connect(m_pserial, SIGNAL(resourceError()), this, SLOT(resourceErrorHandler()));
 }
 
 MainWindow::~MainWindow()
@@ -70,6 +72,14 @@ void MainWindow::btnConnectionSerial(bool state)
 void MainWindow::consoleInfo(QString const message)
 {
     ui->console->append(message);
+}
+
+void MainWindow::resourceErrorHandler()
+{
+    ui->btn_connection->setChecked(false);
+
+    QMessageBox::critical(this, tr("Critical Error"), m_pserial->errorString());
+
 }
 
 

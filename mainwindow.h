@@ -25,6 +25,8 @@ private slots:
     void btnConnectionSerial(bool state);
     void consoleInfo(QString const message);
 
+    void resourceErrorHandler();
+
 private:
     Ui::MainWindow *ui;
 

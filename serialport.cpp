@@ -68,7 +68,7 @@ bool SerialPort::closeSerialPort()
         emit showStatusMessage(tr("Close %1 port").arg(m_pserial->portName()));
     }else{
 //        emit showStatusMessage("Critical error: port already closed or never been opened!");
-        qDebug() << "Critical error: port already closed or never been opened!";
+        qDebug() << "Critical error: port already closed or never been opened or other error";
     }
 
     m_pserial->setPortName("");
@@ -112,6 +112,8 @@ void SerialPort::handleError(QSerialPort::SerialPortError error)
          * e.g. when the device is unexpectedly removed from the system.
          */
         qDebug() << error;
+        closeSerialPort();
+        emit resourceError();
         break;
     case QSerialPort::SerialPortError::UnsupportedOperationError:
         /*  The requested device operation is not supported or prohibited by the running operating system.
