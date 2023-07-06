@@ -21,6 +21,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->btn_connection, SIGNAL(toggled(bool)), this, SLOT(btnConnectionSerial(bool)));
 
+    // table
+    ui->lbl_val_1->setText("RPM: ");
+    ui->lbl_val_2->setText("Torque (N*m): ");
+    ui->lbl_val_3->setText("");
+    ui->lbl_val_4->setText("");
+
     /*
      * Serial
      */
@@ -32,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_pserial, SIGNAL(resourceError()), this, SLOT(resourceErrorHandler()));
 
     connect(m_pserial, SIGNAL(newDataAvailable(QByteArray)), ui->realTimeGraphs, SLOT(newDataHandler(QByteArray)));
+
+    connect(ui->realTimeGraphs, SIGNAL(newDataTable(QVector<double>)), this, SLOT(newDataTableHandler(QVector<double>)));
 }
 
 MainWindow::~MainWindow()
@@ -39,6 +47,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::newDataTableHandler(QVector<double> data)
+{
+    ui->lbl_val_1->setText(tr("RPM: %1").arg(QString::number(data.at(0), 'f', 3)));
+    ui->lbl_val_2->setText(tr("Torque (N*m): %1").arg(QString::number(data.at(1), 'f', 3)));
+}
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {

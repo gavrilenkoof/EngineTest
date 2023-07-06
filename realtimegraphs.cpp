@@ -79,7 +79,7 @@ void RealTimeGraphs::newDataHandler(QByteArray data)
      * R - 1 : rpm
      * Tm - 2 : time (ms)
      */
-    qDebug() << data;
+//    qDebug() << data;
     static int const size = 500;
     static int const count_data = 3;
 
@@ -98,9 +98,16 @@ void RealTimeGraphs::newDataHandler(QByteArray data)
         }
 
         if(values.size() >= count_data){
+
+            QVector<double> data;
+
+            for (auto &val : values) {
+                data.append(val.toDouble());
+            }
+
             // save in vectors for plots
-            appendDoubleAndTrunc(&m_values_1, values.at(0).toDouble(), size); // torque
-            appendDoubleAndTrunc(&m_values_2, values.at(1).toDouble(), size); // rpm
+            appendDoubleAndTrunc(&m_values_1, data.at(0), size); // torque
+            appendDoubleAndTrunc(&m_values_2, data.at(1), size); // rpm
 //            appendDoubleAndTrunc(&m_seconds, values.at(2).toDouble(), size); // ms
 
             // timestamp of new values
@@ -114,6 +121,8 @@ void RealTimeGraphs::newDataHandler(QByteArray data)
             // save in time of new values
             appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
             m_last_update_time = time_now;
+
+            emit newDataTable(data);
 
             m_update_val_plot = true;
         }

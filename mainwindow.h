@@ -29,6 +29,8 @@ private slots:
 
     void resourceErrorHandler();
 
+    void newDataTableHandler(QVector<double> data);
+
 private:
     Ui::MainWindow *ui;
 

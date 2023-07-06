@@ -25,6 +25,9 @@ private slots:
 
     void newDataHandler(QByteArray data);
 
+signals:
+    void newDataTable(QVector<double> data);
+
 private:
     Ui::RealTimeGraphs *ui;
 
@@ -41,6 +44,8 @@ private:
     bool m_update_val_plot;
 
     double const m_x_axis_range = 60.0; // seconds
+
+
 
 };
 
