@@ -63,8 +63,6 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     connect(&m_timer_update_graphs, SIGNAL(timeout()), this, SLOT(timerSlot()));
     m_timer_update_graphs.start(50);
 
-    connect(&m_timer_new_data, SIGNAL(timeout()), this, SLOT(valuesReceived()));
-    m_timer_new_data.start(100);
 
 }
 
@@ -83,7 +81,7 @@ void RealTimeGraphs::newDataHandler(QByteArray data)
      */
     qDebug() << data;
     static int const size = 500;
-    static int const count_data = 3
+    static int const count_data = 3;
 
     QString data_str = QString(data);
 
@@ -103,22 +101,22 @@ void RealTimeGraphs::newDataHandler(QByteArray data)
             // save in vectors for plots
             appendDoubleAndTrunc(&m_values_1, values.at(0).toDouble(), size); // torque
             appendDoubleAndTrunc(&m_values_2, values.at(1).toDouble(), size); // rpm
-            appendDoubleAndTrunc(&m_seconds, values.at(2).toDouble(), size); // ms
+//            appendDoubleAndTrunc(&m_seconds, values.at(2).toDouble(), size); // ms
+
+            // timestamp of new values
+            qint64 time_now = QDateTime::currentMSecsSinceEpoch(); // timestamp
+            double elapsed = double((time_now - m_last_update_time)) / 1000.0;
+            if (elapsed > 1.0) {
+                elapsed = 1.0;
+            }
+            m_second_counter += elapsed;
+
+            // save in time of new values
+            appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
+            m_last_update_time = time_now;
 
             m_update_val_plot = true;
         }
-
-//        // timestamp of new values
-//        qint64 time_now = QDateTime::currentMSecsSinceEpoch(); // timestamp
-//        double elapsed = double((time_now - m_last_update_time)) / 1000.0;
-//        if (elapsed > 1.0) {
-//            elapsed = 1.0;
-//        }
-//        m_second_counter += elapsed;
-
-//        // save in time of new values
-//        appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
-//        m_last_update_time = time_now;
 
 
     }else{
@@ -130,32 +128,6 @@ void RealTimeGraphs::newDataHandler(QByteArray data)
 
 }
 
-void RealTimeGraphs::valuesReceived()
-{
-//    static int const size = 500;
-//    static int i = 0;
-
-//    double new_val2 = qSin(i/50.0) + qSin(i/50.0/0.3843)*0.25;
-//    double new_val = 50*qSin(i/50.0) + 10*qSin(i/50.0/0.3843)*0.25;
-
-//    ++i;
-
-//    appendDoubleAndTrunc(&m_values_1, new_val, size);
-//    appendDoubleAndTrunc(&m_values_2, new_val2, size);
-
-//    qint64 time_now = QDateTime::currentMSecsSinceEpoch();
-//    double elapsed = double((time_now - m_last_update_time)) / 1000.0;
-//    if (elapsed > 1.0) {
-//        elapsed = 1.0;
-//    }
-
-//    m_second_counter += elapsed;
-
-//    appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
-//    m_last_update_time = time_now;
-
-//    m_update_val_plot = true;
-}
 
 void RealTimeGraphs::timerSlot()
 {

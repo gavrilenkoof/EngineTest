@@ -22,7 +22,6 @@ public:
 
 private slots:
     void timerSlot();
-    void valuesReceived();
 
     void newDataHandler(QByteArray data);
 
@@ -43,8 +42,6 @@ private:
 
     double const m_x_axis_range = 60.0; // seconds
 
-    // new test data
-    QTimer m_timer_new_data;
 };
 
 #endif // REALTIMEGRAPHS_H
