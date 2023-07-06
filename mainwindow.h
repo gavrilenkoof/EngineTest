@@ -3,6 +3,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QCloseEvent>
+
 #include "serialport.h"
 
 
@@ -20,10 +22,19 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void serialListHandler();
+    void btnConnectionSerial(bool state);
+    void consoleInfo(QString const message);
+
+    void resourceErrorHandler();
+
 private:
     Ui::MainWindow *ui;
 
     SerialPort *m_pserial = nullptr;
+
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H

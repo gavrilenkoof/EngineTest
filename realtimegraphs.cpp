@@ -14,7 +14,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setLabel("RPM");
     ui->plot_1->axisRect()->axis(QCPAxis::atBottom, 0)->setLabel("Seconds (s)");
     ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setTickLabelPadding(10);
-    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-5, 5);
+    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-50, 50);
 
 //    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setNumberPrecision(2);
 
@@ -41,6 +41,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 //    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setNumberPrecision(2);
     ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setTickLabelPadding(10);
 //    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setNumberFormat("f");  // TODO FIX moving yaxis2
+    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-5, 5);
 
     ui->plot_2->legend->setVisible(true);
     ui->plot_2->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
@@ -62,8 +63,6 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     connect(&m_timer_update_graphs, SIGNAL(timeout()), this, SLOT(timerSlot()));
     m_timer_update_graphs.start(50);
 
-    connect(&m_timer_new_data, SIGNAL(timeout()), this, SLOT(valuesReceived()));
-    m_timer_new_data.start(100);
 
 }
 
@@ -73,32 +72,62 @@ RealTimeGraphs::~RealTimeGraphs()
 }
 
 
-void RealTimeGraphs::valuesReceived()
+void RealTimeGraphs::newDataHandler(QByteArray data)
 {
+    /*
+     * T - 0
+     * R - 1
+     * Tm - 2
+     */
+    qDebug() << data;
     static int const size = 500;
-    static int i = 0;
+    static int const count_data = 3;
 
-    double new_val = qSin(i/50.0) + qSin(i/50.0/0.3843)*0.25;
-    double new_val2 = 50*qSin(i/50.0) + 10*qSin(i/50.0/0.3843)*0.25;
+    QString data_str = QString(data);
 
-    ++i;
+    QRegularExpression re;
+    re.setPattern("([-]?\\d*\\.?\\d+)");
 
-    appendDoubleAndTrunc(&m_values_1, new_val, size);
-    appendDoubleAndTrunc(&m_values_2, new_val2, size);
+    auto it = re.globalMatch(data_str);
 
-    qint64 time_now = QDateTime::currentMSecsSinceEpoch();
-    double elapsed = double((time_now - m_last_update_time)) / 1000.0;
-    if (elapsed > 1.0) {
-        elapsed = 1.0;
+    if(it.hasNext()){
+        QVector<QString> values;
+        while(it.hasNext()){
+            auto match = it.next();
+            values.append(match.captured(0));
+        }
+
+        if(values.size() >= count_data){
+            // save in vectors for plots
+            appendDoubleAndTrunc(&m_values_1, values.at(0).toDouble(), size); // torque
+            appendDoubleAndTrunc(&m_values_2, values.at(1).toDouble(), size); // rpm
+//            appendDoubleAndTrunc(&m_seconds, values.at(2).toDouble(), size); // ms
+
+            // timestamp of new values
+            qint64 time_now = QDateTime::currentMSecsSinceEpoch(); // timestamp
+            double elapsed = double((time_now - m_last_update_time)) / 1000.0;
+            if (elapsed > 1.0) {
+                elapsed = 1.0;
+            }
+            m_second_counter += elapsed;
+
+            // save in time of new values
+            appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
+            m_last_update_time = time_now;
+
+            m_update_val_plot = true;
+        }
+
+
+    }else{
+        // Handle another type of data
+        qDebug() << "Another type of data";
     }
 
-    m_second_counter += elapsed;
 
-    appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
-    m_last_update_time = time_now;
 
-    m_update_val_plot = true;
 }
+
 
 void RealTimeGraphs::timerSlot()
 {
@@ -110,7 +139,7 @@ void RealTimeGraphs::timerSlot()
 //        ui->plot_1->yAxis2->rescale(true);
 
         ui->plot_2->xAxis->rescale(true);
-        ui->plot_2->yAxis2->rescale(true);
+//        ui->plot_2->yAxis2->rescale(true);
 
         if(m_seconds.back() >= m_x_axis_range){
             ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
@@ -124,8 +153,6 @@ void RealTimeGraphs::timerSlot()
         graphValue = ui->plot_2->graph(0)->dataMainValue(ui->plot_2->graph(0)->dataCount() - 1);
         m_tag2->updatePosition(graphValue);
         m_tag2->setText(QString::number(graphValue, 'f', 3));
-
-
 
         m_update_val_plot = false;
         ui->plot_1->replot();
