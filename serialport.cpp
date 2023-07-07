@@ -89,8 +89,18 @@ void SerialPort::readData()
 
     // Data stored in the buffer (for comfortable reading set 100 bytes)
     if(data_count > 100){
-        QByteArray data = m_pserial->readLine();
-        emit newDataAvailable(data);
+        QString data = QString(m_pserial->readLine());
+
+        if(data.contains("T:") && data.contains("R:") && data.contains("Tm:")){
+            emit newDataAvailable(data);
+            emit getParams(data);
+        }else if(data.contains("par:")){
+            qDebug() << "PARAMS";
+//            emit getParams(data);
+        }else{
+            qDebug() << "Unknown data! Skip";
+        }
+
     }
 }
 

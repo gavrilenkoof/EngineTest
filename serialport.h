@@ -44,7 +44,8 @@ signals:
 
     void resourceError();
 
-    void newDataAvailable(QByteArray data);
+    void newDataAvailable(QString data);
+    void getParams(QString data);
 
 };
 

@@ -72,7 +72,7 @@ RealTimeGraphs::~RealTimeGraphs()
 }
 
 
-void RealTimeGraphs::newDataHandler(QByteArray data)
+void RealTimeGraphs::newDataHandler(QString data)
 {
     /*
      * T - 0 : torque (N*m)
@@ -81,14 +81,13 @@ void RealTimeGraphs::newDataHandler(QByteArray data)
      */
 //    qDebug() << data;
     static int const size = 500;
-    static int const count_data = 3;
+//    static int const count_data = 3;
 
-    QString data_str = QString(data);
 
     QRegularExpression re;
     re.setPattern("([-]?\\d*\\.?\\d+)");
 
-    auto it = re.globalMatch(data_str);
+    auto it = re.globalMatch(data);
 
     if(it.hasNext()){
         QVector<QString> values;
@@ -97,36 +96,31 @@ void RealTimeGraphs::newDataHandler(QByteArray data)
             values.append(match.captured(0));
         }
 
-        if(values.size() >= count_data){
-
-            QVector<double> data;
-
-            for (auto &val : values) {
-                data.append(val.toDouble());
-            }
-
-            // save in vectors for plots
-            appendDoubleAndTrunc(&m_values_1, data.at(0), size); // torque
-            appendDoubleAndTrunc(&m_values_2, data.at(1), size); // rpm
-//            appendDoubleAndTrunc(&m_seconds, values.at(2).toDouble(), size); // ms
-
-            // timestamp of new values
-            qint64 time_now = QDateTime::currentMSecsSinceEpoch(); // timestamp
-            double elapsed = double((time_now - m_last_update_time)) / 1000.0;
-            if (elapsed > 1.0) {
-                elapsed = 1.0;
-            }
-            m_second_counter += elapsed;
-
-            // save in time of new values
-            appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
-            m_last_update_time = time_now;
-
-            emit newDataTable(data);
-
-            m_update_val_plot = true;
+        QVector<double> data_double;
+        for (auto &val : values) {
+            data_double.append(val.toDouble());
         }
 
+        // save in vectors for plots
+        appendDoubleAndTrunc(&m_values_1, data_double.at(0), size); // torque
+        appendDoubleAndTrunc(&m_values_2, data_double.at(1), size); // rpm
+//       appendDoubleAndTrunc(&m_seconds, values.at(2).toDouble(), size); // ms
+
+        // timestamp of new values
+        qint64 time_now = QDateTime::currentMSecsSinceEpoch(); // timestamp
+        double elapsed = double((time_now - m_last_update_time)) / 1000.0;
+        if (elapsed > 1.0) {
+            elapsed = 1.0;
+        }
+        m_second_counter += elapsed;
+
+        // save in time of new values
+        appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
+        m_last_update_time = time_now;
+
+        emit newDataTable(data_double);
+
+        m_update_val_plot = true;
 
     }else{
         // Handle another type of data

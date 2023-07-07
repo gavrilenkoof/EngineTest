@@ -35,10 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(m_pserial, SIGNAL(updateSerialList()), this, SLOT(serialListHandler()));
     connect(m_pserial, SIGNAL(showStatusMessage(QString)), this, SLOT(consoleInfo(QString)));
-
     connect(m_pserial, SIGNAL(resourceError()), this, SLOT(resourceErrorHandler()));
-
-    connect(m_pserial, SIGNAL(newDataAvailable(QByteArray)), ui->realTimeGraphs, SLOT(newDataHandler(QByteArray)));
+    connect(m_pserial, SIGNAL(newDataAvailable(QString)), ui->realTimeGraphs, SLOT(newDataHandler(QString)));
+    connect(m_pserial, SIGNAL(getParams(QString)), m_settings, SLOT(getParamsHandler(QString)));
 
     connect(ui->realTimeGraphs, SIGNAL(newDataTable(QVector<double>)), this, SLOT(newDataTableHandler(QVector<double>)));
 

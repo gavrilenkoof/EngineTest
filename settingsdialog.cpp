@@ -18,7 +18,6 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_ui->setupUi(this);
     setWindowTitle("Parameters");
 
-
 }
 
 SettingsDialog::~SettingsDialog()
@@ -31,40 +30,8 @@ SettingsDialog::Settings SettingsDialog::settings() const
     return m_currentSettings;
 }
 
-void SettingsDialog::showPortInfo(int idx)
+void SettingsDialog::getParamsHandler(QString data)
 {
-
+    qDebug() << data;
 }
 
-void SettingsDialog::apply()
-{
-//    updateSettings();
-//    hide();
-}
-
-void SettingsDialog::checkCustomBaudRatePolicy(int idx)
-{
-
-}
-
-void SettingsDialog::checkCustomDevicePathPolicy(int idx)
-{
-
-}
-
-void SettingsDialog::fillPortsParameters()
-{
-
-}
-
-void SettingsDialog::fillPortsInfo()
-{
-
-}
-
-void SettingsDialog::updateSettings()
-{
-
-
-//    m_currentSettings.localEchoEnabled = m_ui->localEchoCheckBox->isChecked();
-}

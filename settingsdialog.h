@@ -43,21 +43,14 @@ public:
 
     Settings settings() const;
 
-private slots:
-    void showPortInfo(int idx);
-    void apply();
-    void checkCustomBaudRatePolicy(int idx);
-    void checkCustomDevicePathPolicy(int idx);
-
-private:
-    void fillPortsParameters();
-    void fillPortsInfo();
-    void updateSettings();
 
 private:
     Ui::SettingsDialog *m_ui = nullptr;
     Settings m_currentSettings;
     QIntValidator *m_intValidator = nullptr;
+
+private slots:
+    void getParamsHandler(QString data);
 };
 
 #endif // SETTINGSDIALOG_H
