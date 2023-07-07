@@ -14,18 +14,21 @@ SOURCES += \
     mainwindow.cpp \
     qcustomplot.cpp \
     realtimegraphs.cpp \
-    serialport.cpp
+    serialport.cpp \
+    settingsdialog.cpp
 
 HEADERS += \
     axistag.h \
     mainwindow.h \
     qcustomplot.h \
     realtimegraphs.h \
-    serialport.h
+    serialport.h \
+    settingsdialog.h
 
 FORMS += \
     mainwindow.ui \
-    realtimegraphs.ui
+    realtimegraphs.ui \
+    settingsdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

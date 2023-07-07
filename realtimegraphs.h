@@ -6,6 +6,7 @@
 #include "qcustomplot.h"
 #include "axistag.h"
 
+
 namespace Ui {
 class RealTimeGraphs;
 }

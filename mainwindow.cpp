@@ -5,7 +5,8 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::MainWindow),
+      m_settings(new SettingsDialog(this))
 {
     ui->setupUi(this);
 
@@ -40,10 +41,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_pserial, SIGNAL(newDataAvailable(QByteArray)), ui->realTimeGraphs, SLOT(newDataHandler(QByteArray)));
 
     connect(ui->realTimeGraphs, SIGNAL(newDataTable(QVector<double>)), this, SLOT(newDataTableHandler(QVector<double>)));
+
+    /*
+     * Actions
+     */
+    connect(ui->actionConfigure, &QAction::triggered, m_settings, &SettingsDialog::show);
 }
 
 MainWindow::~MainWindow()
 {
+    delete m_settings;
     delete ui;
 }
 
