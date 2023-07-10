@@ -27,7 +27,7 @@ private slots:
     void btnConnectionSerial(bool state);
     void consoleInfo(QString const message);
 
-    void resourceErrorHandler();
+    void handleError(QSerialPort::SerialPortError error);
 
     void newDataTableHandler(QVector<double> data);
 

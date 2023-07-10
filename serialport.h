@@ -40,7 +40,6 @@ private:
 
 private slots:
     void timerSlotUpdCountSerials();
-    void handleError(QSerialPort::SerialPortError error);
     void readData();
 
     void getParamRequest();
@@ -50,10 +49,9 @@ signals:
     void updateSerialList();
     void showStatusMessage(QString const message);
 
-    void resourceError();
-
     void newDataAvailable(QString data);
     void dataParamsAvailable(QString data);
+    void errorSerial(QSerialPort::SerialPortError error);
 
 };
 
