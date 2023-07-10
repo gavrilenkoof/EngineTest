@@ -96,6 +96,8 @@ void SerialPort::readData()
         }else if(data.contains("Par:") && data.contains("Gain:") && data.contains("Scale:")
                  && data.contains("BiasX:") && data.contains("BiasY:") && data.contains("Baudrate:")){
             emit dataParamsAvailable(data);
+        }else if(data.contains("Set") && data.contains("->")){
+            emit dataUpdateParamChecker(data);
         }else{
             qDebug() << "Unknown data! Skip" << data;
         }
@@ -124,19 +126,24 @@ void SerialPort::setParamRequest(SettingsDialog::Parameters params)
 {
 
     QString data;
-    data = tr("GAIN=%1\n").arg(QString::number(params.gain, 'f'));
+    data = tr("GAIN=%1\n").arg(QString::number(params.gain, 'g'));
     writeData(data.toUtf8());
+    qDebug() << data;
 
-    data = tr("SCALE=%1\n").arg(QString::number(params.scale, 'f'));
+    data = tr("SCALE=%1\n").arg(QString::number(params.scale, 'g'));
     writeData(data.toUtf8());
+    qDebug() << data;
 
-    data = tr("BIASX=%1\n").arg(QString::number(params.bias_x, 'f'));
+    data = tr("BIASX=%1\n").arg(QString::number(params.bias_x, 'g'));
     writeData(data.toUtf8());
+    qDebug() << data;
 
-    data = tr("BIASY=%1\n").arg(QString::number(params.bias_y, 'f'));
+    data = tr("BIASY=%1\n").arg(QString::number(params.bias_y, 'g'));
     writeData(data.toUtf8());
+    qDebug() << data;
 
     data = tr("Baudrate=%1\n").arg(QString::number(params.baudrate));
     writeData(data.toUtf8());
+    qDebug() << data;
 
 }

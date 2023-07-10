@@ -358,7 +358,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionConfigure">
    <property name="text">
-    <string>&amp;Configure</string>
+    <string>&amp;Parameters</string>
    </property>
   </action>
  </widget>

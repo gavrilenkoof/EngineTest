@@ -7,6 +7,9 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->lbl_1->setText("");
+    ui->lbl_2->setText("");
+
     // Configuration first graph
     ui->plot_1->yAxis->setTickLabels(false);
     ui->plot_1->yAxis2->setVisible(true);
@@ -14,9 +17,8 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setLabel("RPM");
     ui->plot_1->axisRect()->axis(QCPAxis::atBottom, 0)->setLabel("Seconds (s)");
     ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setTickLabelPadding(10);
-    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-50, 50);
+//    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-50, 50);
 
-//    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setNumberPrecision(2);
 
 
     ui->plot_1->legend->setVisible(true);
@@ -42,7 +44,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 //    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setNumberPrecision(2);
     ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setTickLabelPadding(10);
 //    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setNumberFormat("f");  // TODO FIX moving yaxis2
-    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-5, 5);
+//    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-5, 5);
 
     ui->plot_2->legend->setVisible(true);
     ui->plot_2->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);

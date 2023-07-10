@@ -51,7 +51,9 @@ signals:
 
     void newDataAvailable(QString data);
     void dataParamsAvailable(QString data);
+    void dataUpdateParamChecker(QString data);
     void errorSerial(QSerialPort::SerialPortError error);
+
 
 };
 

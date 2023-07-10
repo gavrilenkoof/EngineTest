@@ -52,6 +52,7 @@ signals:
 private slots:
     void getParamsHandler(QString data);
     void setParamsPrepare();
+    void updateParamChecker(QString data);
 };
 
 #endif // SETTINGSDIALOG_H

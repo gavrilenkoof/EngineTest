@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_pserial, SIGNAL(errorSerial(QSerialPort::SerialPortError)), this, SLOT(handleError(QSerialPort::SerialPortError)));
     connect(m_pserial, SIGNAL(newDataAvailable(QString)), ui->realTimeGraphs, SLOT(newDataHandler(QString)));
     connect(m_pserial, SIGNAL(dataParamsAvailable(QString)), m_settings, SLOT(getParamsHandler(QString)));
+    connect(m_pserial, SIGNAL(dataUpdateParamChecker(QString)), m_settings, SLOT(updateParamChecker(QString)));
 
     connect(ui->realTimeGraphs, SIGNAL(newDataTable(QVector<double>)), this, SLOT(newDataTableHandler(QVector<double>)));
 
