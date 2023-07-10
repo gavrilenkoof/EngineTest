@@ -8,6 +8,8 @@
 #include <QSerialPortInfo>
 #include <QSerialPort>
 
+#include "settingsdialog.h"
+
 class SerialPort : public QObject
 {
     Q_OBJECT
@@ -34,13 +36,16 @@ private:
     QTimer m_timer_upd_serials;
     QTimer m_timer_timout_read;
 
+    void writeData(QByteArray const &data);
+
 
 private slots:
     void timerSlotUpdCountSerials();
     void handleError(QSerialPort::SerialPortError error);
     void readData();
-    void writeData(QByteArray const &data);
+
     void getParamRequest();
+    void setParamRequest(SettingsDialog::Parameters params);
     void timeoutRead();
 
 signals:

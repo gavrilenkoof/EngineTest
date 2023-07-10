@@ -24,6 +24,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->line_param10->setReadOnly(true);
 
     connect(ui->btnGetParam, SIGNAL(clicked()), this, SIGNAL(getParams()));
+    connect(ui->btnSetParam, SIGNAL(clicked()), this, SLOT(setParamsPrepare()));
 
 }
 
@@ -39,10 +40,10 @@ SettingsDialog::Parameters SettingsDialog::parameters() const
 
 void SettingsDialog::fillInfo(SettingsDialog::Parameters &params)
 {
-    ui->line_param1->setText(tr("%1").arg(QString::number(params.gain, 'f', 5)));
-    ui->line_param2->setText(tr("%1").arg(QString::number(params.scale, 'f', 5)));
-    ui->line_param3->setText(tr("%1").arg(QString::number(params.bias_x, 'f', 5)));
-    ui->line_param4->setText(tr("%1").arg(QString::number(params.bias_y, 'f', 5)));
+    ui->line_param1->setText(tr("%1").arg(QString::number(params.gain, 'f')));
+    ui->line_param2->setText(tr("%1").arg(QString::number(params.scale, 'f')));
+    ui->line_param3->setText(tr("%1").arg(QString::number(params.bias_x, 'f')));
+    ui->line_param4->setText(tr("%1").arg(QString::number(params.bias_y, 'f')));
     ui->line_param5->setText(tr("%1").arg(QString::number(params.baudrate)));
 
     ui->lbl_status->setText("Status: get parameters");
@@ -76,3 +77,17 @@ void SettingsDialog::getParamsHandler(QString data)
 
 }
 
+void SettingsDialog::setParamsPrepare()
+{
+
+    ui->lbl_status->setText("Status: set parameters");
+
+    // TODO chack data correct
+    m_params.gain = ui->line_param1->text().toDouble();
+    m_params.scale = ui->line_param2->text().toDouble();
+    m_params.bias_x = ui->line_param3->text().toDouble();
+    m_params.bias_y = ui->line_param4->text().toDouble();
+    m_params.baudrate = ui->line_param5->text().toInt();
+
+    emit setParams(m_params);
+}

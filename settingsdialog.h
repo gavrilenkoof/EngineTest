@@ -45,9 +45,11 @@ private:
 
 signals:
     void getParams();
+    void setParams(SettingsDialog::Parameters);
 
 private slots:
     void getParamsHandler(QString data);
+    void setParamsPrepare();
 };
 
 #endif // SETTINGSDIALOG_H

@@ -139,10 +139,10 @@ void RealTimeGraphs::timerSlot()
         ui->plot_2->graph(0)->addData(m_seconds.back(), m_values_2.back());
 
         ui->plot_1->xAxis->rescale(true);
-//        ui->plot_1->yAxis2->rescale(true);
+        ui->plot_1->yAxis2->rescale(true);
 
         ui->plot_2->xAxis->rescale(true);
-//        ui->plot_2->yAxis2->rescale(true);
+        ui->plot_2->yAxis2->rescale(true);
 
         if(m_seconds.back() >= m_x_axis_range){
             ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);

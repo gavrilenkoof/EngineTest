@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionConfigure, &QAction::triggered, m_settings, &SettingsDialog::show);
 
     connect(m_settings, SIGNAL(getParams()), m_pserial, SLOT(getParamRequest()));
-//    connect(m_settings, SIGNAL(setParams()), m_pserial, SLOT(setParamRequest()));
+    connect(m_settings, SIGNAL(setParams(SettingsDialog::Parameters)), m_pserial, SLOT(setParamRequest(SettingsDialog::Parameters)));
 }
 
 MainWindow::~MainWindow()
