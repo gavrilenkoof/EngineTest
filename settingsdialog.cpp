@@ -26,6 +26,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     connect(ui->btnGetParam, SIGNAL(clicked()), this, SIGNAL(getParams()));
     connect(ui->btnSetParam, SIGNAL(clicked()), this, SLOT(setParamsPrepare()));
 
+
 }
 
 SettingsDialog::~SettingsDialog()
@@ -77,17 +78,38 @@ void SettingsDialog::getParamsHandler(QString data)
 
 }
 
+
+//ui->combo_box_serials_baud->addItem(QStringLiteral("9600"), QSerialPort::Baud9600);
+//ui->combo_box_serials_baud->addItem(QStringLiteral("19200"), QSerialPort::Baud19200);
+//ui->combo_box_serials_baud->addItem(QStringLiteral("38400"), QSerialPort::Baud38400);
+//ui->combo_box_serials_baud->addItem(QStringLiteral("57600"), QSerialPort::Baud57600);
+//ui->combo_box_serials_baud->addItem(QStringLiteral("115200"), QSerialPort::Baud115200);
+bool SettingsDialog::newParamsCorrect()
+{
+//    SettingsDialog::Parameters copy_param = parameters();
+
+    qint32 baudrate = ui->line_param5->text().toInt();
+    if(baudrate == 9600 || baudrate == 19200 || baudrate == 38400 || baudrate == 57600 || baudrate == 115200){
+        return true;
+    }
+
+    ui->lbl_status->setText("Status: baudrate param invalid value");
+
+    return false;
+}
+
 void SettingsDialog::setParamsPrepare()
 {
 
-    ui->lbl_status->setText("Status: set parameters");
+    if(newParamsCorrect()){
+        ui->lbl_status->setText("Status: set parameters");
+        // TODO chack data correct
+        m_params.gain = ui->line_param1->text().toDouble();
+        m_params.scale = ui->line_param2->text().toDouble();
+        m_params.bias_x = ui->line_param3->text().toDouble();
+        m_params.bias_y = ui->line_param4->text().toDouble();
+        m_params.baudrate = ui->line_param5->text().toInt();
 
-    // TODO chack data correct
-    m_params.gain = ui->line_param1->text().toDouble();
-    m_params.scale = ui->line_param2->text().toDouble();
-    m_params.bias_x = ui->line_param3->text().toDouble();
-    m_params.bias_y = ui->line_param4->text().toDouble();
-    m_params.baudrate = ui->line_param5->text().toInt();
-
-    emit setParams(m_params);
+        emit setParams(m_params);
+    }
 }

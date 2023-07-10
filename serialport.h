@@ -27,14 +27,13 @@ public:
 
     QList<QSerialPortInfo> getSerialPortInfo(void);
 
-    bool openSerialPort(QString port_name);
+    bool openSerialPort(QString port_name, int baudrate);
     bool closeSerialPort();
 
 private:
     QSerialPort *m_pserial = nullptr;
 
     QTimer m_timer_upd_serials;
-    QTimer m_timer_timout_read;
 
     void writeData(QByteArray const &data);
 
@@ -46,7 +45,6 @@ private slots:
 
     void getParamRequest();
     void setParamRequest(SettingsDialog::Parameters params);
-    void timeoutRead();
 
 signals:
     void updateSerialList();

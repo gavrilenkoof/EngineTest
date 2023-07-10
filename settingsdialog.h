@@ -43,6 +43,8 @@ private:
 
     void fillInfo(Parameters &params);
 
+    bool newParamsCorrect();
+
 signals:
     void getParams();
     void setParams(SettingsDialog::Parameters);

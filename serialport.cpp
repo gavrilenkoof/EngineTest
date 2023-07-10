@@ -6,9 +6,6 @@ SerialPort::SerialPort(QObject *parent)
     m_pserial = new QSerialPort;
 
 
-    connect(&m_timer_timout_read, SIGNAL(timeout()), this, SLOT(timeoutRead()));
-    m_timer_timout_read.start(10);
-
     connect(&m_timer_upd_serials, SIGNAL(timeout()), this, SLOT(timerSlotUpdCountSerials()));
     m_timer_upd_serials.start(1000);
 
@@ -44,12 +41,12 @@ void SerialPort::timerSlotUpdCountSerials()
 }
 
 
-bool SerialPort::openSerialPort(QString port_name)
+bool SerialPort::openSerialPort(QString port_name, int baudrate)
 {
 
     if(!m_pserial->isOpen()){
         m_pserial->setPortName(port_name);
-        m_pserial->setBaudRate(9600);
+        m_pserial->setBaudRate(baudrate);
         m_pserial->setDataBits(QSerialPort::DataBits::Data8);
         m_pserial->setParity(QSerialPort::Parity::NoParity);
         m_pserial->setStopBits(QSerialPort::StopBits::OneStop);
@@ -86,11 +83,6 @@ bool SerialPort::closeSerialPort()
     m_pserial->setPortName("");
 
     return true;
-}
-
-void SerialPort::timeoutRead()
-{
-
 }
 
 void SerialPort::readData()
