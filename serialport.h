@@ -32,11 +32,16 @@ private:
     QSerialPort *m_pserial = nullptr;
 
     QTimer m_timer_upd_serials;
+    QTimer m_timer_timout_read;
+
 
 private slots:
     void timerSlotUpdCountSerials();
     void handleError(QSerialPort::SerialPortError error);
     void readData();
+    void writeData(QByteArray const &data);
+    void getParamRequest();
+    void timeoutRead();
 
 signals:
     void updateSerialList();
@@ -45,7 +50,7 @@ signals:
     void resourceError();
 
     void newDataAvailable(QString data);
-    void getParams(QString data);
+    void dataParamsAvailable(QString data);
 
 };
 

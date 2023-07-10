@@ -12,26 +12,33 @@
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
-    m_ui(new Ui::SettingsDialog),
+    ui(new Ui::SettingsDialog),
     m_intValidator(new QIntValidator(0, 4000000, this))
 {
-    m_ui->setupUi(this);
+    ui->setupUi(this);
     setWindowTitle("Parameters");
+
+    connect(ui->btnGetParam, SIGNAL(clicked()), this, SIGNAL(getParams()));
 
 }
 
 SettingsDialog::~SettingsDialog()
 {
-    delete m_ui;
+    delete ui;
 }
 
-SettingsDialog::Settings SettingsDialog::settings() const
+SettingsDialog::Parameters SettingsDialog::parameters() const
 {
-    return m_currentSettings;
+    return m_currentParams;
 }
 
 void SettingsDialog::getParamsHandler(QString data)
 {
+
+    QRegularExpression re;
+    re.setPattern("([-]?\\d*\\.?\\d+)");
+
     qDebug() << data;
+
 }
 
