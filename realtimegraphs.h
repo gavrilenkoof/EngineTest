@@ -6,6 +6,7 @@
 #include "qcustomplot.h"
 #include "axistag.h"
 
+
 namespace Ui {
 class RealTimeGraphs;
 }
@@ -23,7 +24,7 @@ public:
 private slots:
     void timerSlot();
 
-    void newDataHandler(QByteArray data);
+    void newDataHandler(QString data);
 
 signals:
     void newDataTable(QVector<double> data);

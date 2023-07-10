@@ -5,6 +5,10 @@ SerialPort::SerialPort(QObject *parent)
 {
     m_pserial = new QSerialPort;
 
+
+    connect(&m_timer_timout_read, SIGNAL(timeout()), this, SLOT(timeoutRead()));
+    m_timer_timout_read.start(10);
+
     connect(&m_timer_upd_serials, SIGNAL(timeout()), this, SLOT(timerSlotUpdCountSerials()));
     m_timer_upd_serials.start(1000);
 
@@ -55,6 +59,7 @@ bool SerialPort::openSerialPort(QString port_name)
                      << "," << m_pserial->dataBits() << "," << m_pserial->parity() << "," << m_pserial->stopBits()
                      << "," <<  m_pserial->flowControl();
             emit showStatusMessage(tr("Connected to %1").arg(m_pserial->portName()));
+            m_pserial->clear();
             return true;
         }else{
             emit showStatusMessage(tr("Cannot connect to %1").arg(m_pserial->portName()));
@@ -83,15 +88,31 @@ bool SerialPort::closeSerialPort()
     return true;
 }
 
+void SerialPort::timeoutRead()
+{
+
+}
+
 void SerialPort::readData()
 {
-    qint64 data_count = m_pserial->bytesAvailable();
 
-    // Data stored in the buffer (for comfortable reading set 100 bytes)
-    if(data_count > 100){
-        QByteArray data = m_pserial->readLine();
-        emit newDataAvailable(data);
+    if(m_pserial->canReadLine()){
+        QString data = QString(m_pserial->readLine());
+        if(data.contains("T:") && data.contains("R:") && data.contains("Tm:")){
+            emit newDataAvailable(data);
+        }else if(data.contains("Par:") && data.contains("Gain:") && data.contains("Scale:")
+                 && data.contains("BiasX:") && data.contains("BiasY:") && data.contains("Baudrate:")){
+            emit dataParamsAvailable(data);
+        }else{
+            qDebug() << "Unknown data! Skip" << data;
+        }
+
     }
+}
+
+void SerialPort::writeData(QByteArray const &data)
+{
+    m_pserial->write(data);
 }
 
 void SerialPort::handleError(QSerialPort::SerialPortError error)
@@ -160,5 +181,38 @@ void SerialPort::handleError(QSerialPort::SerialPortError error)
     default:
         break;
     }
+
+}
+
+
+void SerialPort::getParamRequest()
+{
+    if(isOpen()){
+        QByteArray msg_bytes = QString("GET_PARAMS").toUtf8();
+        writeData(msg_bytes);
+    }else{
+        qDebug() << "Port is not opened";
+    }
+
+}
+
+void SerialPort::setParamRequest(SettingsDialog::Parameters params)
+{
+
+    QString data;
+    data = tr("GAIN=%1\n").arg(QString::number(params.gain, 'f'));
+    writeData(data.toUtf8());
+
+    data = tr("SCALE=%1\n").arg(QString::number(params.scale, 'f'));
+    writeData(data.toUtf8());
+
+    data = tr("BIASX=%1\n").arg(QString::number(params.bias_x, 'f'));
+    writeData(data.toUtf8());
+
+    data = tr("BIASY=%1\n").arg(QString::number(params.bias_y, 'f'));
+    writeData(data.toUtf8());
+
+    data = tr("Baudrate=%1\n").arg(QString::number(params.baudrate));
+    writeData(data.toUtf8());
 
 }

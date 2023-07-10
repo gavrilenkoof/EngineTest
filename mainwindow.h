@@ -6,7 +6,7 @@
 #include <QCloseEvent>
 
 #include "serialport.h"
-
+#include "settingsdialog.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -35,6 +35,7 @@ private:
     Ui::MainWindow *ui;
 
     SerialPort *m_pserial = nullptr;
+    SettingsDialog *m_settings = nullptr;
 
     void closeEvent(QCloseEvent *event);
 };
