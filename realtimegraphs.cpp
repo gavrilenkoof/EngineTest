@@ -30,6 +30,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 
     m_tag1 = new AxisTag(ui->plot_1->graph(0)->valueAxis());
     m_tag1->setPen(ui->plot_1->graph(0)->pen());
+    m_tag1->setText("0");
 
 
     // Configuration second graph
@@ -53,6 +54,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 
     m_tag2 = new AxisTag(ui->plot_2->graph(0)->valueAxis());
     m_tag2->setPen(ui->plot_2->graph(0)->pen());
+    m_tag2->setText("0");
 
 
 

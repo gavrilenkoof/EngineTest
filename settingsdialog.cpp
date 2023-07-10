@@ -52,7 +52,7 @@ void SettingsDialog::fillInfo(SettingsDialog::Parameters &params)
 
 void SettingsDialog::getParamsHandler(QString data)
 {
-    qDebug() << data;
+//    qDebug() << data;
 
 //    data = "Par:Gain: 7.4;Scale: 1.53;BiasX: 0.001;BiasY: 0.002;Baudrate: 9600;\r\n";
 
@@ -78,12 +78,6 @@ void SettingsDialog::getParamsHandler(QString data)
 
 }
 
-
-//ui->combo_box_serials_baud->addItem(QStringLiteral("9600"), QSerialPort::Baud9600);
-//ui->combo_box_serials_baud->addItem(QStringLiteral("19200"), QSerialPort::Baud19200);
-//ui->combo_box_serials_baud->addItem(QStringLiteral("38400"), QSerialPort::Baud38400);
-//ui->combo_box_serials_baud->addItem(QStringLiteral("57600"), QSerialPort::Baud57600);
-//ui->combo_box_serials_baud->addItem(QStringLiteral("115200"), QSerialPort::Baud115200);
 bool SettingsDialog::newParamsCorrect()
 {
 //    SettingsDialog::Parameters copy_param = parameters();
@@ -109,6 +103,8 @@ void SettingsDialog::setParamsPrepare()
         m_params.bias_x = ui->line_param3->text().toDouble();
         m_params.bias_y = ui->line_param4->text().toDouble();
         m_params.baudrate = ui->line_param5->text().toInt();
+
+        qDebug() << m_params.gain << m_params.scale << m_params.bias_x << m_params.bias_y << m_params.baudrate;
 
         emit setParams(m_params);
     }

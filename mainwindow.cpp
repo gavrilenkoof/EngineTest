@@ -16,20 +16,11 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("Engine test");
     ui->lbl_status->setText("Status: not connected");
 
-
-//    m_ui->baudRateBox->addItem(QStringLiteral("9600"), QSerialPort::Baud9600);
-//    m_ui->baudRateBox->addItem(QStringLiteral("19200"), QSerialPort::Baud19200);
-//    m_ui->baudRateBox->addItem(QStringLiteral("38400"), QSerialPort::Baud38400);
-//    m_ui->baudRateBox->addItem(QStringLiteral("115200"), QSerialPort::Baud115200);
-//    m_ui->baudRateBox->addItem(tr("Custom"));
-
     ui->combo_box_serials_baud->addItem(QStringLiteral("9600"), QSerialPort::Baud9600);
     ui->combo_box_serials_baud->addItem(QStringLiteral("19200"), QSerialPort::Baud19200);
     ui->combo_box_serials_baud->addItem(QStringLiteral("38400"), QSerialPort::Baud38400);
     ui->combo_box_serials_baud->addItem(QStringLiteral("57600"), QSerialPort::Baud57600);
     ui->combo_box_serials_baud->addItem(QStringLiteral("115200"), QSerialPort::Baud115200);
-//    ui->combo_box_serials_baud->addItem(tr("Custom"));
-
 
     // btn configuration
     ui->btn_connection->setText("&Connect");
