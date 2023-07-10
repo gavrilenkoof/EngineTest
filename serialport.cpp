@@ -98,7 +98,6 @@ void SerialPort::readData()
 
     if(m_pserial->canReadLine()){
         QString data = QString(m_pserial->readLine());
-//        qDebug() << data;
         if(data.contains("T:") && data.contains("R:") && data.contains("Tm:")){
             emit newDataAvailable(data);
         }else if(data.contains("Par:") && data.contains("Gain:") && data.contains("Scale:")

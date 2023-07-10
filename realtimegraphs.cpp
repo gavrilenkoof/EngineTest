@@ -89,45 +89,37 @@ void RealTimeGraphs::newDataHandler(QString data)
 
     auto it = re.globalMatch(data);
 
-    if(it.hasNext()){
-        QVector<QString> values;
-        while(it.hasNext()){
-            auto match = it.next();
-            values.append(match.captured(0));
-        }
-
-        QVector<double> data_double;
-        for (auto &val : values) {
-            data_double.append(val.toDouble());
-        }
-
-        // save in vectors for plots
-        appendDoubleAndTrunc(&m_values_1, data_double.at(0), size); // torque
-        appendDoubleAndTrunc(&m_values_2, data_double.at(1), size); // rpm
-//       appendDoubleAndTrunc(&m_seconds, values.at(2).toDouble(), size); // ms
-
-        // timestamp of new values
-        qint64 time_now = QDateTime::currentMSecsSinceEpoch(); // timestamp
-        double elapsed = double((time_now - m_last_update_time)) / 1000.0;
-        if (elapsed > 1.0) {
-            elapsed = 1.0;
-        }
-        m_second_counter += elapsed;
-
-        // save in time of new values
-        appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
-        m_last_update_time = time_now;
-
-        emit newDataTable(data_double);
-
-        m_update_val_plot = true;
-
-    }else{
-        // Handle another type of data
-        qDebug() << "Another type of data";
+    QVector<QString> values;
+    while(it.hasNext()){
+        auto match = it.next();
+        values.append(match.captured(0));
     }
 
+    QVector<double> data_double;
+    for (auto &val : values) {
+        data_double.append(val.toDouble());
+    }
 
+    // save in vectors for plots
+    appendDoubleAndTrunc(&m_values_1, data_double.at(0), size); // torque
+    appendDoubleAndTrunc(&m_values_2, data_double.at(1), size); // rpm
+//       appendDoubleAndTrunc(&m_seconds, values.at(2).toDouble(), size); // ms
+
+    // timestamp of new values
+    qint64 time_now = QDateTime::currentMSecsSinceEpoch(); // timestamp
+    double elapsed = double((time_now - m_last_update_time)) / 1000.0;
+    if (elapsed > 1.0) {
+        elapsed = 1.0;
+    }
+    m_second_counter += elapsed;
+
+    // save in time of new values
+    appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
+    m_last_update_time = time_now;
+
+    emit newDataTable(data_double);
+
+    m_update_val_plot = true;
 
 }
 
