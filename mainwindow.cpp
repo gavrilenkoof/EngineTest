@@ -125,8 +125,8 @@ void MainWindow::handleError(QSerialPort::SerialPortError error)
          *  another process or a user not having enough permission and credentials to open.
          */
         qDebug() << error;
-        consoleInfo(tr("Error: %1").arg(m_pserial->errorString()));
-        QMessageBox::critical(this, tr("Error"), m_pserial->errorString());
+        consoleInfo(tr("Permission Error: %1").arg(m_pserial->errorString()));
+        QMessageBox::critical(this, tr("Permission Error"), m_pserial->errorString());
         break;
     case QSerialPort::SerialPortError::OpenError:
         /*  An error occurred while attempting to open an already opened device in this object.
@@ -151,8 +151,8 @@ void MainWindow::handleError(QSerialPort::SerialPortError error)
         qDebug() << error;
         m_pserial->closeSerialPort();
         ui->btn_connection->setChecked(false);
-        consoleInfo(tr("Critical error: %1").arg(m_pserial->errorString()));
-        QMessageBox::critical(this, tr("Critical Error"), m_pserial->errorString());
+        consoleInfo(tr("Resource Error: %1").arg(m_pserial->errorString()));
+        QMessageBox::critical(this, tr("Resource Error"), m_pserial->errorString());
         break;
     case QSerialPort::SerialPortError::UnsupportedOperationError:
         /*  The requested device operation is not supported or prohibited by the running operating system.
