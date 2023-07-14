@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("Engine test");
     ui->lbl_status->setText("Status: not connected");
 
+    ui->combo_box_serials_baud->addItem(QStringLiteral("1000000"), 1000000);
     ui->combo_box_serials_baud->addItem(QStringLiteral("9600"), QSerialPort::Baud9600);
     ui->combo_box_serials_baud->addItem(QStringLiteral("19200"), QSerialPort::Baud19200);
     ui->combo_box_serials_baud->addItem(QStringLiteral("38400"), QSerialPort::Baud38400);
@@ -71,6 +72,7 @@ void MainWindow::newDataTableHandler(QVector<double> data)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    Q_UNUSED(event);
     m_pserial->closeSerialPort();
 }
 

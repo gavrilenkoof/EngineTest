@@ -35,6 +35,14 @@ private:
 
     QTimer m_timer_upd_serials;
 
+    QByteArray m_data_bytes;
+    QByteArray m_temp_data;
+    QByteArray m_prev_data;
+    QByteArray m_next_data;
+
+    qsizetype m_data_begin;
+    qsizetype m_data_end;
+
     void writeData(QByteArray const &data);
 
 

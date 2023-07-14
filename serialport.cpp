@@ -89,20 +89,74 @@ bool SerialPort::closeSerialPort()
 void SerialPort::readData()
 {
 
-    if(m_pserial->canReadLine()){
-        QString data = QString(m_pserial->readLine());
-        if(data.contains("T:") && data.contains("R:") && data.contains("Tm:")){
-            emit newDataAvailable(data);
-        }else if(data.contains("Par:") && data.contains("Gain:") && data.contains("Scale:")
-                 && data.contains("BiasX:") && data.contains("BiasY:") && data.contains("Baudrate:")){
-            emit dataParamsAvailable(data);
-        }else if(data.contains("Set") && data.contains("->")){
-            emit dataUpdateParamChecker(data);
+    m_data_bytes += m_pserial->readAll();
+//    m_data_bytes += m_pserial->read(32);
+
+//    if(m_pserial->canReadLine()){
+//        QString data = QString(m_pserial->readLine());
+//        if(data.contains("T:") && data.contains("R:") && data.contains("Tm:")){
+//            emit newDataAvailable(data);
+//        }else if(data.contains("Par:") && data.contains("Gain:") && data.contains("Scale:")
+//                 && data.contains("BiasX:") && data.contains("BiasY:") && data.contains("Baudrate:")){
+//            emit dataParamsAvailable(data);
+//        }else if(data.contains("Set") && data.contains("->")){
+//            emit dataUpdateParamChecker(data);
+//        }else{
+//            qDebug() << "Unknown data! Skip" << data;
+//        }
+//    }
+    m_data_begin = m_data_bytes.indexOf("T:");
+    m_data_end = m_data_bytes.indexOf("endl");
+
+    int temp = 50;
+
+    while(m_data_bytes.size() > 0){
+
+
+//        if(m_data_begin != -1 && m_data_end < m_data_begin){
+//            m_prev_data = m_data_bytes.mid(0, m_data_begin + 4);
+//            m_data_bytes.remove(0, m_data_begin + 4);
+//        }else if(m_data_end == -1){
+//            break;
+//            qDebug() << "BREAK";
+//        }else{
+//            m_temp_data = m_data_bytes.mid(m_data_begin , m_data_end - m_data_begin + 4);
+//            m_data_bytes.remove(m_data_begin, m_data_end - m_data_begin + 4);
+//        }
+
+        if(m_data_begin < m_data_end && m_data_begin != -1){
+            m_temp_data = m_data_bytes.mid(m_data_begin, m_data_end - m_data_begin + 4);
+            m_data_bytes.remove(m_data_begin, m_data_end - m_data_begin + 4);
+        }else if(m_data_end == -1){
+            m_next_data = m_data_bytes.mid(0, m_data_bytes.size());
+            m_data_bytes.remove(0, m_data_bytes.size());
+        }else if(m_data_begin > m_data_end){
+            m_prev_data = m_data_bytes.mid(0, m_data_end + 4);
+            m_data_bytes.remove(0, m_data_end + 4);
         }else{
-            qDebug() << "Unknown data! Skip" << data;
+            qDebug() << "UNKNOWN";
         }
 
+
+        qDebug() << m_temp_data;
+
+
+        m_data_begin = m_data_bytes.indexOf("T:");
+        m_data_end = m_data_bytes.indexOf("endl");
+
     }
+
+//    m_data_begin = m_data_bytes.indexOf("T:");
+//    m_data_end = m_data_bytes.indexOf("end");
+
+//    qDebug() << m_data_begin << " " << m_data_end;
+
+
+    m_data_bytes.clear();
+
+    qDebug() << m_pserial->bytesAvailable();
+
+
 }
 
 void SerialPort::writeData(QByteArray const &data)
