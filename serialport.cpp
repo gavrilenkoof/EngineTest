@@ -11,7 +11,6 @@ SerialPort::SerialPort(QObject *parent)
 
 //    connect(m_pserial, &QSerialPort::errorOccurred, this, &SerialPort::handleError);
     connect(m_pserial, SIGNAL(errorOccurred(QSerialPort::SerialPortError)), this, SIGNAL(errorSerial(QSerialPort::SerialPortError)));
-
     connect(m_pserial, &QSerialPort::readyRead, this, &SerialPort::readData);
 
 }
@@ -88,9 +87,11 @@ bool SerialPort::closeSerialPort()
 
 void SerialPort::readData()
 {
+    static int const data_bytes = 34;
+
 //    qDebug() << m_pserial->bytesAvailable();
 
-    if(m_pserial->bytesAvailable() < (34 * 100)){
+    if(m_pserial->bytesAvailable() < (data_bytes * 100)){
         return;
     }
 
@@ -103,45 +104,64 @@ void SerialPort::readData()
         m_data_begin = m_data_bytes.indexOf("T:");
         m_data_end = m_data_bytes.indexOf("endl");
 
-        if(m_data_begin < m_data_end /*&& m_data_begin != -1*/){
-            m_temp_data = m_data_bytes.mid(m_data_begin, m_data_end - m_data_begin + 4);
+        if(m_data_begin < m_data_end){
+            m_temp_data = m_data_bytes.mid(m_data_begin, m_data_end - m_data_begin + 4); // 4 bytes = "endl"
             m_data_bytes.remove(m_data_begin, m_data_end - m_data_begin + 4);
-//            qDebug() << "1:"<< m_temp_data;
 
-            if(m_temp_data.size() == 34){
-//                double torque = m_temp_data
-                uint8_t arr[8] = {0};
-                arr[0] = m_temp_data.at(2);
-                arr[1] = m_temp_data.at(3);
-                arr[2] = m_temp_data.at(4);
-                arr[3] = m_temp_data.at(5);
+            if(m_temp_data.size() == data_bytes){
+                /*
+                 *  T:(4 bytes);R:(4 bytes);Tm:(8 bytes)-(4 bytes)endl;
+                 *  T - torque (N*m)
+                 *  R - RPM
+                 *  Tm: timestamp (us)
+                 *  - - sampletime (us)
+                 */
+                int i = 0;
 
-//                uint32_t torque = (arr[3] & 0x00FF) << 24 | (arr[2] & 0x00FF) << 16 | (arr[1] & 0x00FF) << 8 | (arr[0] & 0x00FF) << 0;
-                uint32_t torque = 0;
-                memmove(&torque, arr, 4);
+                m_data_begin = m_temp_data.indexOf("T:");
+                uint32_t torque_adc = 0;
+                m_temp_arr[0] = m_temp_data.at(2);
+                m_temp_arr[1] = m_temp_data.at(3);
+                m_temp_arr[2] = m_temp_data.at(4);
+                m_temp_arr[3] = m_temp_data.at(5);
+                memmove(&torque_adc, m_temp_arr, 4);
 
-                double torque_double = (((float)torque / 8388608.f) - 1.0f)*(5.0f / (float)(1 << 1));
+                double torque = (((float)torque_adc / 8388608.f) - 1.0f)*(5.0f / (float)(1 << 7));
 
-//                qDebug() << tr("%1").arg(QString::number(torque_double, 'f', 7));
-//                qDebug() << m_temp_data.mid(17, 8);
-                uint64_t time = 0;
+                m_data_begin = m_temp_data.indexOf("R:");
+                uint32_t rpm = 0;
+                i = 0;
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 2);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 3);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 4);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 5);
 
-                arr[0] = m_temp_data.at(17);
-                arr[1] = m_temp_data.at(18);
-                arr[2] = m_temp_data.at(19);
-                arr[3] = m_temp_data.at(20);
-                arr[4] = m_temp_data.at(21);
-                arr[5] = m_temp_data.at(22);
-                arr[6] = m_temp_data.at(23);
-                arr[7] = m_temp_data.at(24);
+                m_data_begin = m_temp_data.indexOf("Tm:");
+                uint64_t timestamp = 0;
+                i = 0;
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 3);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 4);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 5);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 6);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 7);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 8);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 9);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 10);
+                memmove(&timestamp, m_temp_arr, 8);
 
-                memmove(&time, arr, 8);
+                m_data_begin = 26;
+                uint32_t sampletime = 0;
+                i = 0;
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 0);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 1);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 2);
+                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 3);
+                memmove(&sampletime, m_temp_arr, 4);
 
-                qDebug() << time;
+                qDebug() << "T:" << tr("%1").arg(QString::number(torque, 'f', 6)) << "R:" << rpm << "Tm:" << timestamp << "-" << sampletime;
 
-//                qDebug() << m_temp_data.at()
             }else{
-                qDebug() << "ERROR";
+                qDebug() << "ERROR: data size error.";
             }
 
 
@@ -154,7 +174,7 @@ void SerialPort::readData()
             m_data_bytes.remove(0, m_data_end + 4);
 //            qDebug() << "3:"<< m_prev_data;
         }else{
-            qDebug() << "ERROR";
+            qDebug() << "Error: unknown parse.";
         }
 
 //        m_temp_data.clear();

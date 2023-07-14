@@ -39,6 +39,7 @@ private:
     QByteArray m_temp_data;
     QByteArray m_prev_data;
     QByteArray m_next_data;
+    uint8_t m_temp_arr[8] = {0};
 
     qsizetype m_data_begin;
     qsizetype m_data_end;
