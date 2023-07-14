@@ -88,74 +88,85 @@ bool SerialPort::closeSerialPort()
 
 void SerialPort::readData()
 {
+//    qDebug() << m_pserial->bytesAvailable();
+
+    if(m_pserial->bytesAvailable() < (34 * 100)){
+        return;
+    }
+
 
     m_data_bytes += m_pserial->readAll();
-//    m_data_bytes += m_pserial->read(32);
+//    qDebug() << m_data_bytes;
 
-//    if(m_pserial->canReadLine()){
-//        QString data = QString(m_pserial->readLine());
-//        if(data.contains("T:") && data.contains("R:") && data.contains("Tm:")){
-//            emit newDataAvailable(data);
-//        }else if(data.contains("Par:") && data.contains("Gain:") && data.contains("Scale:")
-//                 && data.contains("BiasX:") && data.contains("BiasY:") && data.contains("Baudrate:")){
-//            emit dataParamsAvailable(data);
-//        }else if(data.contains("Set") && data.contains("->")){
-//            emit dataUpdateParamChecker(data);
-//        }else{
-//            qDebug() << "Unknown data! Skip" << data;
-//        }
-//    }
-    m_data_begin = m_data_bytes.indexOf("T:");
-    m_data_end = m_data_bytes.indexOf("endl");
-
-    int temp = 50;
 
     while(m_data_bytes.size() > 0){
-
-
-//        if(m_data_begin != -1 && m_data_end < m_data_begin){
-//            m_prev_data = m_data_bytes.mid(0, m_data_begin + 4);
-//            m_data_bytes.remove(0, m_data_begin + 4);
-//        }else if(m_data_end == -1){
-//            break;
-//            qDebug() << "BREAK";
-//        }else{
-//            m_temp_data = m_data_bytes.mid(m_data_begin , m_data_end - m_data_begin + 4);
-//            m_data_bytes.remove(m_data_begin, m_data_end - m_data_begin + 4);
-//        }
-
-        if(m_data_begin < m_data_end && m_data_begin != -1){
-            m_temp_data = m_data_bytes.mid(m_data_begin, m_data_end - m_data_begin + 4);
-            m_data_bytes.remove(m_data_begin, m_data_end - m_data_begin + 4);
-        }else if(m_data_end == -1){
-            m_next_data = m_data_bytes.mid(0, m_data_bytes.size());
-            m_data_bytes.remove(0, m_data_bytes.size());
-        }else if(m_data_begin > m_data_end){
-            m_prev_data = m_data_bytes.mid(0, m_data_end + 4);
-            m_data_bytes.remove(0, m_data_end + 4);
-        }else{
-            qDebug() << "UNKNOWN";
-        }
-
-
-        qDebug() << m_temp_data;
-
-
         m_data_begin = m_data_bytes.indexOf("T:");
         m_data_end = m_data_bytes.indexOf("endl");
 
+        if(m_data_begin < m_data_end /*&& m_data_begin != -1*/){
+            m_temp_data = m_data_bytes.mid(m_data_begin, m_data_end - m_data_begin + 4);
+            m_data_bytes.remove(m_data_begin, m_data_end - m_data_begin + 4);
+//            qDebug() << "1:"<< m_temp_data;
+
+            if(m_temp_data.size() == 34){
+//                double torque = m_temp_data
+                uint8_t arr[8] = {0};
+                arr[0] = m_temp_data.at(2);
+                arr[1] = m_temp_data.at(3);
+                arr[2] = m_temp_data.at(4);
+                arr[3] = m_temp_data.at(5);
+
+//                uint32_t torque = (arr[3] & 0x00FF) << 24 | (arr[2] & 0x00FF) << 16 | (arr[1] & 0x00FF) << 8 | (arr[0] & 0x00FF) << 0;
+                uint32_t torque = 0;
+                memmove(&torque, arr, 4);
+
+                double torque_double = (((float)torque / 8388608.f) - 1.0f)*(5.0f / (float)(1 << 1));
+
+//                qDebug() << tr("%1").arg(QString::number(torque_double, 'f', 7));
+//                qDebug() << m_temp_data.mid(17, 8);
+                uint64_t time = 0;
+
+                arr[0] = m_temp_data.at(17);
+                arr[1] = m_temp_data.at(18);
+                arr[2] = m_temp_data.at(19);
+                arr[3] = m_temp_data.at(20);
+                arr[4] = m_temp_data.at(21);
+                arr[5] = m_temp_data.at(22);
+                arr[6] = m_temp_data.at(23);
+                arr[7] = m_temp_data.at(24);
+
+                memmove(&time, arr, 8);
+
+                qDebug() << time;
+
+//                qDebug() << m_temp_data.at()
+            }else{
+                qDebug() << "ERROR";
+            }
+
+
+        }else if(m_data_end == -1){
+            m_next_data = m_data_bytes.mid(0, m_data_bytes.size());
+            m_data_bytes.remove(0, m_data_bytes.size());
+//            qDebug() << "2:"<< m_next_data;
+        }else if(m_data_begin > m_data_end){
+            m_prev_data = m_data_bytes.mid(0, m_data_end + 4);
+            m_data_bytes.remove(0, m_data_end + 4);
+//            qDebug() << "3:"<< m_prev_data;
+        }else{
+            qDebug() << "ERROR";
+        }
+
+//        m_temp_data.clear();
     }
+
 
 //    m_data_begin = m_data_bytes.indexOf("T:");
 //    m_data_end = m_data_bytes.indexOf("end");
-
 //    qDebug() << m_data_begin << " " << m_data_end;
 
 
     m_data_bytes.clear();
-
-    qDebug() << m_pserial->bytesAvailable();
-
 
 }
 
@@ -182,22 +193,22 @@ void SerialPort::setParamRequest(SettingsDialog::Parameters params)
     QString data;
     data = tr("GAIN=%1\n").arg(QString::number(params.gain, 'g'));
     writeData(data.toUtf8());
-    qDebug() << data;
+//    qDebug() << data;
 
     data = tr("SCALE=%1\n").arg(QString::number(params.scale, 'g'));
     writeData(data.toUtf8());
-    qDebug() << data;
+//    qDebug() << data;
 
     data = tr("BIASX=%1\n").arg(QString::number(params.bias_x, 'g'));
     writeData(data.toUtf8());
-    qDebug() << data;
+//    qDebug() << data;
 
     data = tr("BIASY=%1\n").arg(QString::number(params.bias_y, 'g'));
     writeData(data.toUtf8());
-    qDebug() << data;
+//    qDebug() << data;
 
     data = tr("Baudrate=%1\n").arg(QString::number(params.baudrate));
     writeData(data.toUtf8());
-    qDebug() << data;
+//    qDebug() << data;
 
 }
