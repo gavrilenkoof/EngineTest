@@ -46,6 +46,8 @@ private:
 
     void writeData(QByteArray const &data);
 
+    void parseData(QByteArray &data, uint8_t values[], int data_begin, qsizetype bytes, qsizetype bias);
+
 
 private slots:
     void timerSlotUpdCountSerials();

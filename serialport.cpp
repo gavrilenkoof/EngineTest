@@ -63,7 +63,6 @@ bool SerialPort::openSerialPort(QString port_name, int baudrate)
             return false;
         }
     }else{
-//        emit showStatusMessage("Critical error: port already opened!");
         qDebug() << "Critical error: port already opened";
         return false;
     }
@@ -85,11 +84,17 @@ bool SerialPort::closeSerialPort()
     return true;
 }
 
+void SerialPort::parseData(QByteArray &data, uint8_t values[], int data_begin, qsizetype bytes, qsizetype bias)
+{
+    for(int i = 0; i < bytes; ++i){
+        values[i] = data.at(data_begin + (bias++));
+    }
+}
+
 void SerialPort::readData()
 {
     static int const data_bytes = 34;
 
-//    qDebug() << m_pserial->bytesAvailable();
 
     if(m_pserial->bytesAvailable() < (data_bytes * 100)){
         return;
@@ -97,7 +102,6 @@ void SerialPort::readData()
 
 
     m_data_bytes += m_pserial->readAll();
-//    qDebug() << m_data_bytes;
 
 
     while(m_data_bytes.size() > 0){
@@ -116,46 +120,27 @@ void SerialPort::readData()
                  *  Tm: timestamp (us)
                  *  - - sampletime (us)
                  */
-                int i = 0;
 
                 m_data_begin = m_temp_data.indexOf("T:");
                 uint32_t torque_adc = 0;
-                m_temp_arr[0] = m_temp_data.at(2);
-                m_temp_arr[1] = m_temp_data.at(3);
-                m_temp_arr[2] = m_temp_data.at(4);
-                m_temp_arr[3] = m_temp_data.at(5);
+                parseData(m_temp_data, m_temp_arr, m_data_begin, 4, 2);
                 memmove(&torque_adc, m_temp_arr, 4);
 
                 double torque = (((float)torque_adc / 8388608.f) - 1.0f)*(5.0f / (float)(1 << 7));
 
                 m_data_begin = m_temp_data.indexOf("R:");
                 uint32_t rpm = 0;
-                i = 0;
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 2);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 3);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 4);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 5);
+                parseData(m_temp_data, m_temp_arr, m_data_begin, 4, 2);
+                memmove(&rpm, m_temp_arr, 4);
 
                 m_data_begin = m_temp_data.indexOf("Tm:");
                 uint64_t timestamp = 0;
-                i = 0;
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 3);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 4);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 5);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 6);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 7);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 8);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 9);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 10);
+                parseData(m_temp_data, m_temp_arr, m_data_begin, 8, 3);
                 memmove(&timestamp, m_temp_arr, 8);
 
                 m_data_begin = 26;
                 uint32_t sampletime = 0;
-                i = 0;
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 0);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 1);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 2);
-                m_temp_arr[i++] = m_temp_data.at(m_data_begin + 3);
+                parseData(m_temp_data, m_temp_arr, m_data_begin, 4, 0);
                 memmove(&sampletime, m_temp_arr, 4);
 
                 qDebug() << "T:" << tr("%1").arg(QString::number(torque, 'f', 6)) << "R:" << rpm << "Tm:" << timestamp << "-" << sampletime;
@@ -168,23 +153,16 @@ void SerialPort::readData()
         }else if(m_data_end == -1){
             m_next_data = m_data_bytes.mid(0, m_data_bytes.size());
             m_data_bytes.remove(0, m_data_bytes.size());
-//            qDebug() << "2:"<< m_next_data;
+             qDebug() << "SKIP" << m_next_data;
         }else if(m_data_begin > m_data_end){
             m_prev_data = m_data_bytes.mid(0, m_data_end + 4);
             m_data_bytes.remove(0, m_data_end + 4);
-//            qDebug() << "3:"<< m_prev_data;
+            qDebug() << "SKIP" << m_prev_data;
         }else{
             qDebug() << "Error: unknown parse.";
         }
 
-//        m_temp_data.clear();
     }
-
-
-//    m_data_begin = m_data_bytes.indexOf("T:");
-//    m_data_end = m_data_bytes.indexOf("end");
-//    qDebug() << m_data_begin << " " << m_data_end;
-
 
     m_data_bytes.clear();
 
