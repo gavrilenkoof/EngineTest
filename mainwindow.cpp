@@ -93,7 +93,6 @@ void MainWindow::btnConnectionSerial(bool state)
     if(state){
 //        qDebug() << state << "Open serial port" << ui->combo_box_serials->currentText();
         if(m_pserial->openSerialPort(ui->combo_box_serials->currentText(), ui->combo_box_serials_baud->currentText().toInt())){
-
             ui->lbl_status->setText("Status: connected");
             ui->btn_connection->setText("&Disconnect");
         }else{

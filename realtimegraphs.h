@@ -48,7 +48,7 @@ private:
 
     double const m_x_axis_range = 60.0; // seconds
 
-    void updateGraphs(QVector<double> &torque, QVector<double> &rpm, QVector<double> &timestamp, QVector<double> &sampletime);
+    void updateGraphs(double &torque, double &rpm, double &timestamp, double &sampletime);
 
 
 

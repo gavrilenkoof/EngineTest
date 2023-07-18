@@ -118,8 +118,6 @@ void SerialPort::readData()
         return;
     }
 
-
-
     while(m_data_bytes.size() > 0){
         m_data_begin = m_data_bytes.indexOf("T:");
         m_data_end = m_data_bytes.indexOf("endl");
