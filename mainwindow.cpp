@@ -30,8 +30,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->btn_connection, SIGNAL(toggled(bool)), this, SLOT(btnConnectionSerial(bool)));
 
     // table
-    ui->lbl_val_1->setText("RPM: ");
-    ui->lbl_val_2->setText("Torque (N*m): ");
+    ui->lbl_val_1->setText("");
+    ui->lbl_val_2->setText("");
     ui->lbl_val_3->setText("");
     ui->lbl_val_4->setText("");
 
@@ -95,6 +95,7 @@ void MainWindow::btnConnectionSerial(bool state)
         if(m_pserial->openSerialPort(ui->combo_box_serials->currentText(), ui->combo_box_serials_baud->currentText().toInt())){
             ui->lbl_status->setText("Status: connected");
             ui->btn_connection->setText("&Disconnect");
+            ui->realTimeGraphs->clearGraphsAndBuffers();
         }else{
             ui->lbl_status->setText("Status: connection failure");
             ui->btn_connection->setChecked(false);

@@ -20,6 +20,7 @@ public:
     ~RealTimeGraphs();
 
     void appendDoubleAndTrunc(QVector<double> *vec, double num, int max_size);
+    void clearGraphsAndBuffers();
 
 private slots:
     void timerSlot();
@@ -49,6 +50,7 @@ private:
     double const m_x_axis_range = 60.0; // seconds
 
     void updateGraphs(double &torque, double &rpm, double &timestamp, double &sampletime);
+    void updateTableValues(double &torque, double &rpm, double &timestamp,double &sampletime);
 
 
 

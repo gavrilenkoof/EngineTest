@@ -7,8 +7,12 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->lbl_1->setText("");
-    ui->lbl_2->setText("");
+//    ui->lbl_1->setText("");
+//    ui->lbl_2->setText("");
+    ui->lbl_torque->setText("Torque: ");
+    ui->lbl_rpm->setText("RPM: ");
+    ui->label->setText("");
+    ui->label_2->setText("");
 
     // Configuration first graph
     ui->plot_1->yAxis->setTickLabels(false);
@@ -17,8 +21,6 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setLabel("RPM");
     ui->plot_1->axisRect()->axis(QCPAxis::atBottom, 0)->setLabel("Seconds (s)");
     ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setTickLabelPadding(10);
-//    ui->plot_1->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-50, 50);
-
 
 
     ui->plot_1->legend->setVisible(true);
@@ -58,8 +60,6 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 //    m_tag2->setPen(ui->plot_2->graph(0)->pen());
 //    m_tag2->setText("0");
 
-
-
 //    m_second_counter = 0.0;
     m_update_val_plot = false;
 //    m_last_update_time = QDateTime::currentMSecsSinceEpoch();
@@ -68,6 +68,20 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     m_timer_update_graphs.start(1);
 
 
+}
+
+void RealTimeGraphs::clearGraphsAndBuffers()
+{
+    m_torque.clear();
+    m_rpm.clear();
+    m_timestamp.clear();
+    m_sampletime.clear();
+
+    ui->plot_1->graph(0)->data()->clear();
+    ui->plot_2->graph(0)->data()->clear();
+
+    ui->plot_1->replot();
+    ui->plot_2->replot();
 }
 
 RealTimeGraphs::~RealTimeGraphs()
@@ -80,6 +94,12 @@ void RealTimeGraphs::updateGraphs(double &torque, double &rpm, double &timestamp
 
       ui->plot_1->graph(0)->addData(timestamp, rpm);
       ui->plot_2->graph(0)->addData(timestamp, torque);
+}
+
+void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &timestamp,double &sampletime)
+{
+    ui->lbl_rpm->setText(tr("RPM: %1").arg(QString::number(rpm, 'g', 6)));
+    ui->lbl_torque->setText(tr("Torque: %1").arg(QString::number(torque, 'g', 6)));
 }
 
 
@@ -99,7 +119,6 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 
         rpm = data_dict["RPM"];
 //        appendDoubleAndTrunc(&m_rpm, rpm, size);
-//        qDebug() << rpm;
         if(rpm > 0){
             qDebug() << "ERROR RPM" <<rpm;
         }
@@ -111,9 +130,9 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 //        appendDoubleAndTrunc(&m_sampletime, sampletime, size);
 
         updateGraphs(torque, rpm, timestamp, sampletime);
+        updateTableValues(torque, rpm, timestamp, sampletime);
 
         m_update_val_plot = true;
-
     }
 
 }
@@ -122,21 +141,12 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 void RealTimeGraphs::timerSlot()
 {
     if(m_update_val_plot){
-//        ui->plot_1->graph(0)->addData(m_seconds.back(), m_values_1.back());
-//        ui->plot_2->graph(0)->addData(m_seconds.back(), m_values_2.back());
-
         ui->plot_1->xAxis->rescale(true);
         ui->plot_1->yAxis2->rescale(true);
 
-
-
         ui->plot_2->xAxis->rescale(true);
         ui->plot_2->yAxis2->rescale(true);
-//        if(m_seconds.back() >= m_x_axis_range){
-//            ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
-//            ui->plot_2->xAxis->setRange(ui->plot_2->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
-//        }
-        if(ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) >= m_x_axis_range){
+        if(ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) > m_x_axis_range){
             ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
             ui->plot_2->xAxis->setRange(ui->plot_2->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
         }
@@ -147,9 +157,10 @@ void RealTimeGraphs::timerSlot()
 //        graphValue = ui->plot_2->graph(0)->dataMainValue(ui->plot_2->graph(0)->dataCount() - 1);
 //        m_tag2->updatePosition(graphValue);
 //        m_tag2->setText(QString::number(graphValue, 'f', 3));
-        m_update_val_plot = false;
         ui->plot_1->replot();
         ui->plot_2->replot();
+
+        m_update_val_plot = false;
     }
 
 }
