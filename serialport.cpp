@@ -99,6 +99,9 @@ void SerialPort::parseData(QByteArray &data, uint8_t values[], int data_begin, q
 
 void SerialPort::readData()
 {
+//    static uint64_t correct_data = 0;
+//    static uint64_t incorrect_data = 0;
+
     static int const data_bytes = 34;
     static QString find_adc_start;
 
@@ -115,6 +118,8 @@ void SerialPort::readData()
         m_pserial->clear();
         m_data_bytes.clear();
         qDebug() << "RESTART ARDUINO. CLEAR BUFFER";
+//        correct_data = 0;
+//        incorrect_data = 0;
         return;
     }
 
@@ -160,8 +165,11 @@ void SerialPort::readData()
 //                qDebug() << value;
                 m_dict_values.append(value);
 
+//                correct_data += 1;
+
             }else{
-//                qDebug() << "ERROR: data size error.";
+                qDebug() << "ERROR: data size error.";
+//                incorrect_data += 1;
             }
 
 
@@ -169,17 +177,22 @@ void SerialPort::readData()
             m_next_data = m_data_bytes.mid(0, m_data_bytes.size());
             m_data_bytes.remove(0, m_data_bytes.size());
 //             qDebug() << "SKIP" << m_next_data;
+//            incorrect_data += 1;
         }else if(m_data_begin > m_data_end){
             m_prev_data = m_data_bytes.mid(0, m_data_end + 4);
             m_data_bytes.remove(0, m_data_end + 4);
 //            qDebug() << "SKIP" << m_prev_data;
+//            incorrect_data += 1;
         }else{
             qDebug() << "Error: unknown parse.";
+//            incorrect_data += 1;
         }
 
     }
 
     emit newDataAvailable(m_dict_values);
+
+//    qDebug() << correct_data << " " << incorrect_data;
 
     m_dict_values.clear();
     m_data_bytes.clear();

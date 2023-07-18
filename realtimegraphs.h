@@ -36,6 +36,8 @@ private:
     AxisTag *m_tag1;
     AxisTag *m_tag2;
 
+    QCPRange m_range;
+
     QTimer m_timer_update_graphs;
     double m_second_counter;
     qint64 m_last_update_time;
