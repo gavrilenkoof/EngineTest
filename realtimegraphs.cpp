@@ -30,9 +30,9 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->plot_1->setVisible(true);
 
 
-    m_tag1 = new AxisTag(ui->plot_1->graph(0)->valueAxis());
-    m_tag1->setPen(ui->plot_1->graph(0)->pen());
-    m_tag1->setText("0");
+//    m_tag1 = new AxisTag(ui->plot_1->graph(0)->valueAxis());
+//    m_tag1->setPen(ui->plot_1->graph(0)->pen());
+//    m_tag1->setText("0");
 
 
     // Configuration second graph
@@ -54,18 +54,18 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->plot_2->graph(0)->setName("Torque");
     ui->plot_2->setVisible(true);
 
-    m_tag2 = new AxisTag(ui->plot_2->graph(0)->valueAxis());
-    m_tag2->setPen(ui->plot_2->graph(0)->pen());
-    m_tag2->setText("0");
+//    m_tag2 = new AxisTag(ui->plot_2->graph(0)->valueAxis());
+//    m_tag2->setPen(ui->plot_2->graph(0)->pen());
+//    m_tag2->setText("0");
 
 
 
-    m_second_counter = 0.0;
-    m_update_val_plot = false;
-    m_last_update_time = QDateTime::currentMSecsSinceEpoch();
+//    m_second_counter = 0.0;
+//    m_update_val_plot = false;
+//    m_last_update_time = QDateTime::currentMSecsSinceEpoch();
 
-    connect(&m_timer_update_graphs, SIGNAL(timeout()), this, SLOT(timerSlot()));
-    m_timer_update_graphs.start(50);
+//    connect(&m_timer_update_graphs, SIGNAL(timeout()), this, SLOT(timerSlot()));
+//    m_timer_update_graphs.start(50);
 
 
 }
@@ -75,89 +75,107 @@ RealTimeGraphs::~RealTimeGraphs()
     delete ui;
 }
 
-
-void RealTimeGraphs::newDataHandler(QString data)
+void RealTimeGraphs::updateGraphs(QVector<double> &torque, QVector<double> &rpm, QVector<double> &timestamp, QVector<double> &sampletime)
 {
-    /*
-     * T - 0 : torque (N*m)
-     * R - 1 : rpm
-     * Tm - 2 : time (ms)
-     */
-//    qDebug() << data;
+    static double graphValue = 0;
+
+//    int dataSize = timestamp.size();
+//    qDebug() << dataSize;
+
+//    QVector<double> xAxis(dataSize);
+//    for (int i = 0;i < timestamp.size();i++) {
+//        xAxis[i] = timestamp[i];
+//    }
+    ui->plot_1->graph(0)->addData(timestamp.back(), rpm.back());
+    ui->plot_2->graph(0)->addData(timestamp.back(), torque.back());
+//    ui->plot_1->graph(0)->setData(timestamp, rpm);
+//    ui->plot_2->graph(0)->setData(timestamp, torque);
+
+    ui->plot_1->xAxis->rescale(true);
+    ui->plot_1->yAxis2->rescale(true);
+
+    ui->plot_2->xAxis->rescale(true);
+    ui->plot_2->yAxis2->rescale(true);
+
+    if(timestamp.back() >= m_x_axis_range){
+        ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
+        ui->plot_2->xAxis->setRange(ui->plot_2->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
+    }
+
+//    graphValue = ui->plot_1->graph(0)->dataMainValue(ui->plot_1->graph(0)->dataCount() - 1);
+//    m_tag1->updatePosition(graphValue);
+//    m_tag1->setText(QString::number(graphValue, 'g', 3));
+
+//    graphValue = ui->plot_2->graph(0)->dataMainValue(ui->plot_2->graph(0)->dataCount() - 1);
+//    m_tag2->updatePosition(graphValue);
+//    m_tag2->setText(QString::number(graphValue, 'g', 3));
+
+    ui->plot_1->replot();
+    ui->plot_2->replot();
+}
+
+
+void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
+{
+
     static int const size = 500;
-//    static int const count_data = 3;
+    static double torque = 0;
+    static double rpm = 0;
+    static double timestamp = 0;
+    static double sampletime = 0;
 
+    qDebug() << data.size();
 
-    QRegularExpression re;
-    re.setPattern("([-]?\\d*\\.?\\d+)");
+    for(auto &data_dict: data){
+        torque = ((data_dict["Torque"] / 8388608.f) - 1.0f)*(5.0f / (float)(1 << 7));
+//        torque = data_dict["Torque"];
+        appendDoubleAndTrunc(&m_torque, torque, size);
+//        qDebug() << torque;
 
-    auto it = re.globalMatch(data);
+        rpm = data_dict["RPM"];
+        appendDoubleAndTrunc(&m_rpm, rpm, size);
 
-    QVector<QString> values;
-    while(it.hasNext()){
-        auto match = it.next();
-        values.append(match.captured(0));
+        timestamp = data_dict["Timestamp"] / 1000000.0; // us to sec with point
+        appendDoubleAndTrunc(&m_timestamp, timestamp, size);
+//        qDebug() << timestamp;
+
+        sampletime = data_dict["Sampletime"];
+        appendDoubleAndTrunc(&m_sampletime, sampletime, size);
+
+        updateGraphs(m_torque, m_rpm, m_timestamp, m_sampletime);
     }
 
-    QVector<double> data_double;
-    for (auto &val : values) {
-        data_double.append(val.toDouble());
-    }
-
-    // save in vectors for plots
-    appendDoubleAndTrunc(&m_values_1, data_double.at(0), size); // torque
-    appendDoubleAndTrunc(&m_values_2, data_double.at(1), size); // rpm
-//       appendDoubleAndTrunc(&m_seconds, values.at(2).toDouble(), size); // ms
-
-    // timestamp of new values
-    qint64 time_now = QDateTime::currentMSecsSinceEpoch(); // timestamp
-    double elapsed = double((time_now - m_last_update_time)) / 1000.0;
-    if (elapsed > 1.0) {
-        elapsed = 1.0;
-    }
-    m_second_counter += elapsed;
-
-    // save in time of new values
-    appendDoubleAndTrunc(&m_seconds, m_second_counter, size);
-    m_last_update_time = time_now;
-
-    emit newDataTable(data_double);
-
-    m_update_val_plot = true;
+//    updateGraphs(m_torque, m_rpm, m_timestamp, m_sampletime);
 
 }
 
 
 void RealTimeGraphs::timerSlot()
 {
-    if(m_update_val_plot){
-        ui->plot_1->graph(0)->addData(m_seconds.back(), m_values_1.back());
-        ui->plot_2->graph(0)->addData(m_seconds.back(), m_values_2.back());
+//    if(m_update_val_plot){
+//        ui->plot_1->graph(0)->addData(m_seconds.back(), m_values_1.back());
+//        ui->plot_2->graph(0)->addData(m_seconds.back(), m_values_2.back());
 
-        ui->plot_1->xAxis->rescale(true);
-        ui->plot_1->yAxis2->rescale(true);
+//        ui->plot_1->xAxis->rescale(true);
+//        ui->plot_1->yAxis2->rescale(true);
 
-        ui->plot_2->xAxis->rescale(true);
-        ui->plot_2->yAxis2->rescale(true);
+//        ui->plot_2->xAxis->rescale(true);
+//        ui->plot_2->yAxis2->rescale(true);
+//        if(m_seconds.back() >= m_x_axis_range){
+//            ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
+//            ui->plot_2->xAxis->setRange(ui->plot_2->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
+//        }
+//        double graphValue = ui->plot_1->graph(0)->dataMainValue(ui->plot_1->graph(0)->dataCount() - 1);
+//        m_tag1->updatePosition(graphValue);
+//        m_tag1->setText(QString::number(graphValue, 'f', 3));
+//        graphValue = ui->plot_2->graph(0)->dataMainValue(ui->plot_2->graph(0)->dataCount() - 1);
+//        m_tag2->updatePosition(graphValue);
+//        m_tag2->setText(QString::number(graphValue, 'f', 3));
+//        m_update_val_plot = false;
+//        ui->plot_1->replot();
+//        ui->plot_2->replot();
+//    }
 
-        if(m_seconds.back() >= m_x_axis_range){
-            ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
-            ui->plot_2->xAxis->setRange(ui->plot_2->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
-        }
-
-        double graphValue = ui->plot_1->graph(0)->dataMainValue(ui->plot_1->graph(0)->dataCount() - 1);
-        m_tag1->updatePosition(graphValue);
-        m_tag1->setText(QString::number(graphValue, 'f', 3));
-
-        graphValue = ui->plot_2->graph(0)->dataMainValue(ui->plot_2->graph(0)->dataCount() - 1);
-        m_tag2->updatePosition(graphValue);
-        m_tag2->setText(QString::number(graphValue, 'f', 3));
-
-        m_update_val_plot = false;
-        ui->plot_1->replot();
-        ui->plot_2->replot();
-
-    }
 }
 
 

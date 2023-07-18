@@ -24,7 +24,7 @@ public:
 private slots:
     void timerSlot();
 
-    void newDataHandler(QString data);
+    void newDataHandler(QVector<QMap<QString, uint64_t>> data);
 
 signals:
     void newDataTable(QVector<double> data);
@@ -40,11 +40,15 @@ private:
     qint64 m_last_update_time;
     QVector<double> m_seconds;
 
-    QVector<double> m_values_1;
-    QVector<double> m_values_2;
+    QVector<double> m_torque;
+    QVector<double> m_rpm;
+    QVector<double> m_timestamp;
+    QVector<double> m_sampletime;
     bool m_update_val_plot;
 
     double const m_x_axis_range = 60.0; // seconds
+
+    void updateGraphs(QVector<double> &torque, QVector<double> &rpm, QVector<double> &timestamp, QVector<double> &sampletime);
 
 
 

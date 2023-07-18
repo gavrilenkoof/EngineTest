@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_pserial, SIGNAL(updateSerialList()), this, SLOT(serialListHandler()));
     connect(m_pserial, SIGNAL(showStatusMessage(QString)), this, SLOT(consoleInfo(QString)));
     connect(m_pserial, SIGNAL(errorSerial(QSerialPort::SerialPortError)), this, SLOT(handleError(QSerialPort::SerialPortError)));
-    connect(m_pserial, SIGNAL(newDataAvailable(QString)), ui->realTimeGraphs, SLOT(newDataHandler(QString)));
+    connect(m_pserial, SIGNAL(newDataAvailable(QVector<QMap<QString, uint64_t>>)), ui->realTimeGraphs, SLOT(newDataHandler(QVector<QMap<QString, uint64_t>>)));
     connect(m_pserial, SIGNAL(dataParamsAvailable(QString)), m_settings, SLOT(getParamsHandler(QString)));
     connect(m_pserial, SIGNAL(dataUpdateParamChecker(QString)), m_settings, SLOT(updateParamChecker(QString)));
 
@@ -93,6 +93,7 @@ void MainWindow::btnConnectionSerial(bool state)
     if(state){
 //        qDebug() << state << "Open serial port" << ui->combo_box_serials->currentText();
         if(m_pserial->openSerialPort(ui->combo_box_serials->currentText(), ui->combo_box_serials_baud->currentText().toInt())){
+
             ui->lbl_status->setText("Status: connected");
             ui->btn_connection->setText("&Disconnect");
         }else{

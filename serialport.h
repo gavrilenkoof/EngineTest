@@ -45,8 +45,9 @@ private:
     qsizetype m_data_end;
 
     void writeData(QByteArray const &data);
-
     void parseData(QByteArray &data, uint8_t values[], int data_begin, qsizetype bytes, qsizetype bias);
+
+    QVector<QMap<QString, uint64_t>> m_dict_values;
 
 
 private slots:
@@ -60,7 +61,7 @@ signals:
     void updateSerialList();
     void showStatusMessage(QString const message);
 
-    void newDataAvailable(QString data);
+    void newDataAvailable(QVector<QMap<QString, uint64_t>> data);
     void dataParamsAvailable(QString data);
     void dataUpdateParamChecker(QString data);
     void errorSerial(QSerialPort::SerialPortError error);

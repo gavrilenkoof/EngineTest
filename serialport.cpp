@@ -60,6 +60,7 @@ bool SerialPort::openSerialPort(QString port_name, int baudrate)
             return true;
         }else{
             emit showStatusMessage(tr("Cannot connect to %1").arg(m_pserial->portName()));
+            m_pserial->clear();
             return false;
         }
     }else{
@@ -91,17 +92,32 @@ void SerialPort::parseData(QByteArray &data, uint8_t values[], int data_begin, q
     }
 }
 
+// GAIN = 7
+// SCALE = 13421
+// BiasX = 0.0
+// BiasY = -0.0000100
+
 void SerialPort::readData()
 {
     static int const data_bytes = 34;
-
+    static QString find_adc_start;
 
     if(m_pserial->bytesAvailable() < (data_bytes * 100)){
         return;
     }
 
+    QMap<QString, uint64_t> value;
 
     m_data_bytes += m_pserial->readAll();
+    find_adc_start = QString(m_data_bytes);
+
+    if(find_adc_start.contains("AD7190 begin:")){
+        m_pserial->clear();
+        m_data_bytes.clear();
+        qDebug() << "RESTART ARDUINO. CLEAR BUFFER";
+        return;
+    }
+
 
 
     while(m_data_bytes.size() > 0){
@@ -120,50 +136,54 @@ void SerialPort::readData()
                  *  Tm: timestamp (us)
                  *  - - sampletime (us)
                  */
-
                 m_data_begin = m_temp_data.indexOf("T:");
                 uint32_t torque_adc = 0;
                 parseData(m_temp_data, m_temp_arr, m_data_begin, 4, 2);
                 memmove(&torque_adc, m_temp_arr, 4);
-
-                double torque = (((float)torque_adc / 8388608.f) - 1.0f)*(5.0f / (float)(1 << 7));
+                value["Torque"] = torque_adc;
 
                 m_data_begin = m_temp_data.indexOf("R:");
                 uint32_t rpm = 0;
                 parseData(m_temp_data, m_temp_arr, m_data_begin, 4, 2);
                 memmove(&rpm, m_temp_arr, 4);
+                value["RPM"] = rpm;
 
                 m_data_begin = m_temp_data.indexOf("Tm:");
                 uint64_t timestamp = 0;
                 parseData(m_temp_data, m_temp_arr, m_data_begin, 8, 3);
                 memmove(&timestamp, m_temp_arr, 8);
+                value["Timestamp"] = timestamp;
 
                 m_data_begin = 26;
                 uint32_t sampletime = 0;
                 parseData(m_temp_data, m_temp_arr, m_data_begin, 4, 0);
                 memmove(&sampletime, m_temp_arr, 4);
-
-                qDebug() << "T:" << tr("%1").arg(QString::number(torque, 'f', 6)) << "R:" << rpm << "Tm:" << timestamp << "-" << sampletime;
+                value["Sampletime"] = sampletime;
+//                qDebug() << value;
+                m_dict_values.append(value);
 
             }else{
-                qDebug() << "ERROR: data size error.";
+//                qDebug() << "ERROR: data size error.";
             }
 
 
         }else if(m_data_end == -1){
             m_next_data = m_data_bytes.mid(0, m_data_bytes.size());
             m_data_bytes.remove(0, m_data_bytes.size());
-             qDebug() << "SKIP" << m_next_data;
+//             qDebug() << "SKIP" << m_next_data;
         }else if(m_data_begin > m_data_end){
             m_prev_data = m_data_bytes.mid(0, m_data_end + 4);
             m_data_bytes.remove(0, m_data_end + 4);
-            qDebug() << "SKIP" << m_prev_data;
+//            qDebug() << "SKIP" << m_prev_data;
         }else{
             qDebug() << "Error: unknown parse.";
         }
 
     }
 
+    emit newDataAvailable(m_dict_values);
+
+    m_dict_values.clear();
     m_data_bytes.clear();
 
 }
