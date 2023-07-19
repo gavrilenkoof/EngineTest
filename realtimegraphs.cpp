@@ -161,7 +161,12 @@ void RealTimeGraphs::timerSlot()
         if(ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) > m_x_axis_range){
             ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
             ui->plot_2->xAxis->setRange(ui->plot_2->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
+            ui->plot_1->graph(0)->data().data()->removeBefore((ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) - m_x_axis_range));
+            ui->plot_2->graph(0)->data().data()->removeBefore((ui->plot_2->graph(0)->dataMainKey(ui->plot_2->graph(0)->dataCount() - 1) - m_x_axis_range));
         }
+
+        qDebug() << ui->plot_1->graph(0)->dataCount();
+
 
         m_range =  ui->plot_1->graph(0)->getValueRange(found_range);
         if(found_range){
@@ -176,6 +181,8 @@ void RealTimeGraphs::timerSlot()
             new_lower = m_range.lower - m_range.center() / 2;
             ui->plot_2->yAxis2->setRange(new_lower, new_upper);
         }
+
+
 
         ui->plot_1->replot();
         ui->plot_2->replot();
