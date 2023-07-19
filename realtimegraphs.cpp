@@ -58,9 +58,10 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 //    m_tag2->setPen(ui->plot_2->graph(0)->pen());
 //    m_tag2->setText("0");
 
-//    m_second_counter = 0.0;
+    m_params.gain = 1;
+    m_params.scale = 0;
+
     m_update_val_plot = false;
-//    m_last_update_time = QDateTime::currentMSecsSinceEpoch();
 
     connect(&m_timer_update_graphs, SIGNAL(timeout()), this, SLOT(timerSlot()));
     m_timer_update_graphs.start(1);
@@ -89,7 +90,7 @@ RealTimeGraphs::~RealTimeGraphs()
 
 void RealTimeGraphs::updateGraphs(double &torque, double &rpm, double &timestamp,double &sampletime)
 {
-
+    Q_UNUSED(sampletime);
     ui->plot_1->graph(0)->addData(timestamp, rpm);
     ui->plot_2->graph(0)->addData(timestamp, torque);
 //    ui->plot_2->graph(0)->setData(m_timestamp, m_rpm, true);
@@ -98,6 +99,8 @@ void RealTimeGraphs::updateGraphs(double &torque, double &rpm, double &timestamp
 
 void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &timestamp,double &sampletime)
 {
+    Q_UNUSED(timestamp);
+    Q_UNUSED(sampletime);
     ui->lbl_rpm->setText(tr("RPM: %1").arg(QString::number(rpm, 'g', 6)));
     ui->lbl_torque->setText(tr("Torque: %1").arg(QString::number(torque, 'g', 6)));
 }
@@ -106,7 +109,7 @@ void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &time
 void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 {
 
-    static int const size = 55000;
+//    static int const size = 500;
     static double torque = 0;
     static double rpm = 0;
     static double timestamp = 0;
@@ -114,7 +117,8 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 
 
     for(auto &data_dict: data){
-        torque = ((data_dict["Torque"] / 8388608.f) - 1.0f)*(5.0f / (float)(1 << 7));
+        torque = ((data_dict["Torque"] / 8388608.f) - 1.0f)*(5.0f / (float)(1 << m_params.gain));
+        torque = (torque - m_params.bias_x) * m_params.scale - m_params.bias_y;
 //        appendDoubleAndTrunc(&m_torque, torque, size);
 
         rpm = data_dict["RPM"];
@@ -195,5 +199,8 @@ void RealTimeGraphs::appendDoubleAndTrunc(QVector<double> *vec, double num, int 
 
 void RealTimeGraphs::setParamRequest(SettingsDialog::Parameters params)
 {
-    qDebug() << "update params";
+    m_params.gain = params.gain;
+    m_params.scale = params.scale;
+    m_params.bias_x = params.bias_x;
+    m_params.bias_y = params.bias_y;
 }

@@ -30,7 +30,6 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     readSettings();
     fillInfo(m_params);
 
-
 }
 
 SettingsDialog::~SettingsDialog()
@@ -55,6 +54,8 @@ void SettingsDialog::readSettings()
     m_params.baudrate = m_settings.value("/baudrate", 1000000).toUInt();
 
     m_settings.endGroup();
+
+    emit setParams(m_params);
 }
 
 void SettingsDialog::writeSettings()
@@ -73,7 +74,7 @@ void SettingsDialog::writeSettings()
 
 void SettingsDialog::fillInfo(SettingsDialog::Parameters &params)
 {
-    ui->line_param1->setText(tr("%1").arg(QString::number(params.gain, 'g')));
+    ui->line_param1->setText(tr("%1").arg(QString::number(params.gain)));
     ui->line_param2->setText(tr("%1").arg(QString::number(params.scale, 'g')));
     ui->line_param3->setText(tr("%1").arg(QString::number(params.bias_x, 'g')));
     ui->line_param4->setText(tr("%1").arg(QString::number(params.bias_y, 'g')));
@@ -84,7 +85,6 @@ void SettingsDialog::fillInfo(SettingsDialog::Parameters &params)
 
 bool SettingsDialog::newParamsCorrect()
 {
-
     return true;
 
 }
@@ -100,11 +100,14 @@ void SettingsDialog::setParamsPrepare()
         m_params.bias_y = ui->line_param4->text().toDouble();
         m_params.baudrate = ui->line_param5->text().toInt();
 
-        emit setParams(m_params);
+        uploadParamsToGraphs();
     }
 }
 
-
+void SettingsDialog::uploadParamsToGraphs()
+{
+    emit setParams(m_params);
+}
 
 void SettingsDialog::getParams()
 {

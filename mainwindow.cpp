@@ -46,13 +46,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_pserial, SIGNAL(updateSerialList()), this, SLOT(serialListHandler()));
     connect(m_pserial, SIGNAL(showStatusMessage(QString)), this, SLOT(consoleInfo(QString)));
     connect(m_pserial, SIGNAL(errorSerial(QSerialPort::SerialPortError)), this, SLOT(handleError(QSerialPort::SerialPortError)));
-    connect(m_pserial, SIGNAL(newDataAvailable(QVector<QMap<QString, uint64_t> >)), ui->realTimeGraphs, SLOT(newDataHandler(QVector<QMap<QString, uint64_t> >)));
+    connect(m_pserial, SIGNAL(newDataAvailable(QVector<QMap<QString,uint64_t> >)), ui->realTimeGraphs, SLOT(newDataHandler(QVector<QMap<QString,uint64_t> >)));
 
     connect(ui->realTimeGraphs, SIGNAL(newDataTable(QVector<double>)), this, SLOT(newDataTableHandler(QVector<double>)));
 
     connect(ui->actionConfigure, &QAction::triggered, m_settings, &SettingsDialog::show);
 
     connect(m_settings, SIGNAL(setParams(SettingsDialog::Parameters)), ui->realTimeGraphs, SLOT(setParamRequest(SettingsDialog::Parameters)));
+
+    m_settings->uploadParamsToGraphs();
 }
 
 MainWindow::~MainWindow()

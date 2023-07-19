@@ -25,7 +25,7 @@ class SettingsDialog : public QDialog
 public:
 
     struct Parameters{
-        double gain;
+        int gain;
         double scale;
         double bias_x;
         double bias_y;
@@ -36,6 +36,7 @@ public:
     ~SettingsDialog();
 
     Parameters parameters() const;
+    void uploadParamsToGraphs();
 
 private:
     Ui::SettingsDialog *ui = nullptr;
