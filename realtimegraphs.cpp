@@ -153,10 +153,6 @@ void RealTimeGraphs::timerSlot()
 
         ui->plot_2->xAxis->rescale(true);
         ui->plot_2->yAxis2->rescale(true);
-//        ui->plot_1->graph(0)->rescaleAxes(false);
-//        ui->plot_2->graph(0)->rescaleAxes(false);
-//        ui->plot_1->graph(0)->rescaleValueAxis(false, true);
-//        ui->plot_2->graph(0)->rescaleValueAxis(false, true);
 
         if(ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) > m_x_axis_range){
             ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
@@ -176,22 +172,6 @@ void RealTimeGraphs::timerSlot()
             new_lower = m_range.lower - m_range.center() / 2;
             ui->plot_2->yAxis2->setRange(new_lower, new_upper);
         }
-
-
-
-
-
-//        ui->plot_1->graph(0)->getKeyRange()
-
-//        double graphValue = ui->plot_1->graph(0)->dataMainValue(ui->plot_1->graph(0)->dataCount() - 1);
-//        m_tag1->updatePosition(graphValue);
-//        m_tag1->setText(QString::number(graphValue, 'f', 3));
-//        graphValue = ui->plot_2->graph(0)->dataMainValue(ui->plot_2->graph(0)->dataCount() - 1);
-//        m_tag2->updatePosition(graphValue);
-//        m_tag2->setText(QString::number(graphValue, 'f', 3));
-//        ui->plot_1->rescaleAxes();
-//        ui->plot_2->rescaleAxes();
-
 
         ui->plot_1->replot();
         ui->plot_2->replot();
