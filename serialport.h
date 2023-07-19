@@ -37,17 +37,18 @@ private:
 
     QByteArray m_data_bytes;
     QByteArray m_temp_data;
-    QByteArray m_prev_data;
-    QByteArray m_next_data;
+    QByteArray m_end_batch_data;
+    QByteArray m_start_batch_data;
     uint8_t m_temp_arr[8] = {0};
 
     qsizetype m_data_begin;
     qsizetype m_data_end;
 
+    QVector<QMap<QString, uint64_t>> m_dict_values;
+
     void writeData(QByteArray const &data);
     void parseData(QByteArray &data, uint8_t values[], int data_begin, qsizetype bytes, qsizetype bias);
-
-    QVector<QMap<QString, uint64_t>> m_dict_values;
+    void handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t temp_arr[], QMap<QString, uint64_t> &value);
 
 
 private slots:

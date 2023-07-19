@@ -7,7 +7,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->lbl_torque->setText("Torque: ");
+    ui->lbl_torque->setText("Torque (N*m): ");
     ui->lbl_rpm->setText("RPM: ");
     ui->label->setText("");
     ui->label_2->setText("");
@@ -51,7 +51,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 
     ui->plot_2->addGraph(ui->plot_2->xAxis, ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0));
     ui->plot_2->graph(0)->setPen(QPen(QColor(120, 250, 0)));
-    ui->plot_2->graph(0)->setName("Torque");
+    ui->plot_2->graph(0)->setName("Torque (N*m)");
     ui->plot_2->setVisible(true);
 
 //    m_tag2 = new AxisTag(ui->plot_2->graph(0)->valueAxis());
@@ -102,7 +102,7 @@ void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &time
     Q_UNUSED(timestamp);
     Q_UNUSED(sampletime);
     ui->lbl_rpm->setText(tr("RPM: %1").arg(QString::number(rpm, 'g', 6)));
-    ui->lbl_torque->setText(tr("Torque: %1").arg(QString::number(torque, 'g', 6)));
+    ui->lbl_torque->setText(tr("Torque (N*m): %1").arg(QString::number(torque, 'g', 6)));
 }
 
 
@@ -178,8 +178,6 @@ void RealTimeGraphs::timerSlot()
             new_lower = m_range.lower - m_range.center() / 2;
             ui->plot_2->yAxis2->setRange(new_lower, new_upper);
         }
-
-
 
         ui->plot_1->replot();
         ui->plot_2->replot();

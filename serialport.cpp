@@ -99,10 +99,10 @@ void SerialPort::parseData(QByteArray &data, uint8_t values[], int data_begin, q
 
 void SerialPort::readData()
 {
-//    static uint64_t correct_data = 0;
-//    static uint64_t incorrect_data = 0;
+    static int correct_data = 0;
+    static int incorrect_data = 0;
 
-    static int const data_bytes = 34;
+    static int const data_bytes = 34; // msg size in bytes
     static QString find_adc_start;
 
     if(m_pserial->bytesAvailable() < (data_bytes * 100)){
@@ -118,8 +118,6 @@ void SerialPort::readData()
         m_pserial->clear();
         m_data_bytes.clear();
         qDebug() << "RESTART ARDUINO. CLEAR BUFFER";
-//        correct_data = 0;
-//        incorrect_data = 0;
         return;
     }
 
@@ -130,69 +128,38 @@ void SerialPort::readData()
         if(m_data_begin < m_data_end){
             m_temp_data = m_data_bytes.mid(m_data_begin, m_data_end - m_data_begin + 4); // 4 bytes = "endl"
             m_data_bytes.remove(m_data_begin, m_data_end - m_data_begin + 4);
-
-            if(m_temp_data.size() == data_bytes){
-                /*
-                 *  T:(4 bytes);R:(4 bytes);Tm:(8 bytes)-(4 bytes)endl;
-                 *  T - torque (N*m)
-                 *  R - RPM
-                 *  Tm: timestamp (us)
-                 *  - - sampletime (us)
-                 */
-                m_data_begin = m_temp_data.indexOf("T:");
-                uint32_t torque_adc = 0;
-                parseData(m_temp_data, m_temp_arr, m_data_begin, 4, 2);
-                memmove(&torque_adc, m_temp_arr, 4);
-                value["Torque"] = torque_adc;
-
-                m_data_begin = m_temp_data.indexOf("R:");
-                uint32_t rpm = 0;
-                parseData(m_temp_data, m_temp_arr, m_data_begin, 4, 2);
-                memmove(&rpm, m_temp_arr, 4);
-                value["RPM"] = rpm;
-
-                m_data_begin = m_temp_data.indexOf("Tm:");
-                uint64_t timestamp = 0;
-                parseData(m_temp_data, m_temp_arr, m_data_begin, 8, 3);
-                memmove(&timestamp, m_temp_arr, 8);
-                value["Timestamp"] = timestamp;
-
-                m_data_begin = 26;
-                uint32_t sampletime = 0;
-                parseData(m_temp_data, m_temp_arr, m_data_begin, 4, 0);
-                memmove(&sampletime, m_temp_arr, 4);
-                value["Sampletime"] = sampletime;
-//                qDebug() << value;
-                m_dict_values.append(value);
-
-//                correct_data += 1;
-
-            }else{
-                qDebug() << "ERROR: data size error.";
-//                incorrect_data += 1;
-            }
-
-
         }else if(m_data_end == -1){
-            m_next_data = m_data_bytes.mid(0, m_data_bytes.size());
+            m_start_batch_data = m_data_bytes.mid(0, m_data_bytes.size());
             m_data_bytes.remove(0, m_data_bytes.size());
-//             qDebug() << "SKIP" << m_next_data;
-//            incorrect_data += 1;
         }else if(m_data_begin > m_data_end){
-            m_prev_data = m_data_bytes.mid(0, m_data_end + 4);
+            m_end_batch_data = m_data_bytes.mid(0, m_data_end + 4);
             m_data_bytes.remove(0, m_data_end + 4);
-//            qDebug() << "SKIP" << m_prev_data;
-//            incorrect_data += 1;
+            m_temp_data = m_start_batch_data + m_end_batch_data;
         }else{
             qDebug() << "Error: unknown parse.";
-//            incorrect_data += 1;
         }
+
+        if(m_temp_data.size() > data_bytes){
+            qDebug() << m_temp_data.size();
+        }
+
+        if(m_temp_data.size() >= data_bytes){
+//            qDebug() << m_temp_data;
+            handleMsg(m_temp_data, m_data_begin, m_temp_arr, value);
+            ++correct_data;
+        }else{
+            qDebug() << "ERROR: data size error.";
+            ++incorrect_data;
+        }
+
 
     }
 
     emit newDataAvailable(m_dict_values);
 
-//    qDebug() << correct_data << " " << incorrect_data;
+
+//    double percent = (static_cast<double>(incorrect_data))/(incorrect_data + correct_data);
+//    qDebug() << tr("%1").arg(QString::number(percent, 'g')) << "correct_data: " << correct_data << "incorrect_data: " << incorrect_data;
 
     m_dict_values.clear();
     m_data_bytes.clear();
@@ -204,40 +171,41 @@ void SerialPort::writeData(QByteArray const &data)
     m_pserial->write(data);
 }
 
+void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t temp_arr[], QMap<QString, uint64_t> &value)
+{
 
-//void SerialPort::getParamRequest()
-//{
-//    if(isOpen()){
-//        QByteArray msg_bytes = QString("GET_PARAMS").toUtf8();
-//        writeData(msg_bytes);
-//    }else{
-//        qDebug() << "Port is not opened";
-//    }
+    /*
+     *  T:(4 bytes);R:(4 bytes);Tm:(8 bytes)-(4 bytes)endl;
+     *  T - torque (N*m)
+     *  R - RPM
+     *  Tm: timestamp (us)
+     *  - - sampletime (us)
+     */
 
-//}
+    data_begin = temp_data.indexOf("T:");
+    uint32_t torque_adc = 0;
+    parseData(temp_data, temp_arr, data_begin, 4, 2);
+    memmove(&torque_adc, temp_arr, 4);
+    value["Torque"] = torque_adc;
 
-//void SerialPort::setParamRequest(SettingsDialog::Parameters params)
-//{
+    data_begin = temp_data.indexOf("R:");
+    uint32_t rpm = 0;
+    parseData(temp_data, temp_arr, data_begin, 4, 2);
+    memmove(&rpm, temp_arr, 4);
+    value["RPM"] = rpm;
 
-//    QString data;
-//    data = tr("GAIN=%1\n").arg(QString::number(params.gain, 'g'));
-//    writeData(data.toUtf8());
-////    qDebug() << data;
+    data_begin = temp_data.indexOf("Tm:");
+    uint64_t timestamp = 0;
+    parseData(temp_data, temp_arr, data_begin, 8, 3);
+    memmove(&timestamp, temp_arr, 8);
+    value["Timestamp"] = timestamp;
 
-//    data = tr("SCALE=%1\n").arg(QString::number(params.scale, 'g'));
-//    writeData(data.toUtf8());
-////    qDebug() << data;
+//    data_begin = 26;
+    data_begin = temp_data.indexOf("-");
+    uint32_t sampletime = 0;
+    parseData(temp_data, temp_arr, data_begin, 4, 0);
+    memmove(&sampletime, temp_arr, 4);
+    value["Sampletime"] = sampletime;
 
-//    data = tr("BIASX=%1\n").arg(QString::number(params.bias_x, 'g'));
-//    writeData(data.toUtf8());
-////    qDebug() << data;
-
-//    data = tr("BIASY=%1\n").arg(QString::number(params.bias_y, 'g'));
-//    writeData(data.toUtf8());
-////    qDebug() << data;
-
-//    data = tr("Baudrate=%1\n").arg(QString::number(params.baudrate));
-//    writeData(data.toUtf8());
-////    qDebug() << data;
-
-//}
+    m_dict_values.append(value);
+}
