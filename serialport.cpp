@@ -144,7 +144,7 @@ void SerialPort::readData()
             handleMsg(m_temp_data, m_data_begin, m_temp_arr, value);
 //            ++correct_data;
         }else{
-            qDebug() << "ERROR: data size error.";
+//            qDebug() << "ERROR: data size error.";
 //            ++incorrect_data;
         }
 

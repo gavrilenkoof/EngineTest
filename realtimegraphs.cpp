@@ -165,19 +165,19 @@ void RealTimeGraphs::timerSlot()
             ui->plot_2->graph(0)->data().data()->removeBefore((ui->plot_2->graph(0)->dataMainKey(ui->plot_2->graph(0)->dataCount() - 1) - m_x_axis_range));
         }
 
-        m_range =  ui->plot_1->graph(0)->getValueRange(found_range);
-        if(found_range){
-            new_upper = m_range.upper + m_range.center() / 2;
-            new_lower = m_range.lower - m_range.center() / 2;
-            ui->plot_1->yAxis2->setRange(new_lower, new_upper);
-        }
+//        m_range =  ui->plot_1->graph(0)->getValueRange(found_range);
+//        if(found_range){
+//            new_upper = m_range.upper + m_range.center() / 2;
+//            new_lower = m_range.lower - m_range.center() / 2;
+//            ui->plot_1->yAxis2->setRange(new_lower, new_upper);
+//        }
 
-        m_range =  ui->plot_2->graph(0)->getValueRange(found_range);
-        if(found_range){
-            new_upper = m_range.upper + m_range.center() / 2;
-            new_lower = m_range.lower - m_range.center() / 2;
-            ui->plot_2->yAxis2->setRange(new_lower, new_upper);
-        }
+//        m_range =  ui->plot_2->graph(0)->getValueRange(found_range);
+//        if(found_range){
+//            new_upper = m_range.upper + m_range.center() / 2;
+//            new_lower = m_range.lower - m_range.center() / 2;
+//            ui->plot_2->yAxis2->setRange(new_lower, new_upper);
+//        }
 
         ui->plot_1->replot();
         ui->plot_2->replot();
