@@ -99,8 +99,8 @@ void SerialPort::parseData(QByteArray &data, uint8_t values[], int data_begin, q
 
 void SerialPort::readData()
 {
-    static int correct_data = 0;
-    static int incorrect_data = 0;
+//    static int correct_data = 0;
+//    static int incorrect_data = 0;
 
     static int const data_bytes = 34; // msg size in bytes
     static QString find_adc_start;
@@ -133,23 +133,19 @@ void SerialPort::readData()
             m_data_bytes.remove(0, m_data_bytes.size());
         }else if(m_data_begin > m_data_end){
             m_end_batch_data = m_data_bytes.mid(0, m_data_end + 4);
-            m_data_bytes.remove(0, m_data_end + 4);
             m_temp_data = m_start_batch_data + m_end_batch_data;
+            m_data_bytes.remove(0, m_data_end + 4);
         }else{
             qDebug() << "Error: unknown parse.";
         }
 
-        if(m_temp_data.size() > data_bytes){
-            qDebug() << m_temp_data.size();
-        }
-
-        if(m_temp_data.size() >= data_bytes){
+        if(m_temp_data.size() == data_bytes){
 //            qDebug() << m_temp_data;
             handleMsg(m_temp_data, m_data_begin, m_temp_arr, value);
-            ++correct_data;
+//            ++correct_data;
         }else{
             qDebug() << "ERROR: data size error.";
-            ++incorrect_data;
+//            ++incorrect_data;
         }
 
 
