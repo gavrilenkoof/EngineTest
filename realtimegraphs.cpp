@@ -165,9 +165,6 @@ void RealTimeGraphs::timerSlot()
             ui->plot_2->graph(0)->data().data()->removeBefore((ui->plot_2->graph(0)->dataMainKey(ui->plot_2->graph(0)->dataCount() - 1) - m_x_axis_range));
         }
 
-        qDebug() << ui->plot_1->graph(0)->dataCount();
-
-
         m_range =  ui->plot_1->graph(0)->getValueRange(found_range);
         if(found_range){
             new_upper = m_range.upper + m_range.center() / 2;
