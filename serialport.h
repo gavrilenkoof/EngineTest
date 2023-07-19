@@ -54,19 +54,13 @@ private slots:
     void timerSlotUpdCountSerials();
     void readData();
 
-    void getParamRequest();
-    void setParamRequest(SettingsDialog::Parameters params);
 
 signals:
     void updateSerialList();
     void showStatusMessage(QString const message);
 
     void newDataAvailable(QVector<QMap<QString, uint64_t>> data);
-    void dataParamsAvailable(QString data);
-    void dataUpdateParamChecker(QString data);
     void errorSerial(QSerialPort::SerialPortError error);
-
-
 };
 
 #endif // SERIALPORT_H

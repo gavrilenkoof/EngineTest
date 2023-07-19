@@ -205,39 +205,39 @@ void SerialPort::writeData(QByteArray const &data)
 }
 
 
-void SerialPort::getParamRequest()
-{
-    if(isOpen()){
-        QByteArray msg_bytes = QString("GET_PARAMS").toUtf8();
-        writeData(msg_bytes);
-    }else{
-        qDebug() << "Port is not opened";
-    }
+//void SerialPort::getParamRequest()
+//{
+//    if(isOpen()){
+//        QByteArray msg_bytes = QString("GET_PARAMS").toUtf8();
+//        writeData(msg_bytes);
+//    }else{
+//        qDebug() << "Port is not opened";
+//    }
 
-}
+//}
 
-void SerialPort::setParamRequest(SettingsDialog::Parameters params)
-{
+//void SerialPort::setParamRequest(SettingsDialog::Parameters params)
+//{
 
-    QString data;
-    data = tr("GAIN=%1\n").arg(QString::number(params.gain, 'g'));
-    writeData(data.toUtf8());
-//    qDebug() << data;
+//    QString data;
+//    data = tr("GAIN=%1\n").arg(QString::number(params.gain, 'g'));
+//    writeData(data.toUtf8());
+////    qDebug() << data;
 
-    data = tr("SCALE=%1\n").arg(QString::number(params.scale, 'g'));
-    writeData(data.toUtf8());
-//    qDebug() << data;
+//    data = tr("SCALE=%1\n").arg(QString::number(params.scale, 'g'));
+//    writeData(data.toUtf8());
+////    qDebug() << data;
 
-    data = tr("BIASX=%1\n").arg(QString::number(params.bias_x, 'g'));
-    writeData(data.toUtf8());
-//    qDebug() << data;
+//    data = tr("BIASX=%1\n").arg(QString::number(params.bias_x, 'g'));
+//    writeData(data.toUtf8());
+////    qDebug() << data;
 
-    data = tr("BIASY=%1\n").arg(QString::number(params.bias_y, 'g'));
-    writeData(data.toUtf8());
-//    qDebug() << data;
+//    data = tr("BIASY=%1\n").arg(QString::number(params.bias_y, 'g'));
+//    writeData(data.toUtf8());
+////    qDebug() << data;
 
-    data = tr("Baudrate=%1\n").arg(QString::number(params.baudrate));
-    writeData(data.toUtf8());
-//    qDebug() << data;
+//    data = tr("Baudrate=%1\n").arg(QString::number(params.baudrate));
+//    writeData(data.toUtf8());
+////    qDebug() << data;
 
-}
+//}

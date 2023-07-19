@@ -191,3 +191,9 @@ void RealTimeGraphs::appendDoubleAndTrunc(QVector<double> *vec, double num, int 
             vec->remove(0, vec->size() - max_size);
         }
 }
+
+
+void RealTimeGraphs::setParamRequest(SettingsDialog::Parameters params)
+{
+    qDebug() << "update params";
+}

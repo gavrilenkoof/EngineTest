@@ -5,6 +5,7 @@
 
 #include "qcustomplot.h"
 #include "axistag.h"
+#include "settingsdialog.h"
 
 
 namespace Ui {
@@ -26,6 +27,7 @@ private slots:
     void timerSlot();
 
     void newDataHandler(QVector<QMap<QString, uint64_t>> data);
+    void setParamRequest(SettingsDialog::Parameters params);
 
 signals:
     void newDataTable(QVector<double> data);

@@ -7,6 +7,7 @@
 
 #include <QDialog>
 #include <QSerialPort>
+#include <QSettings>
 
 QT_BEGIN_NAMESPACE
 
@@ -40,19 +41,21 @@ private:
     Ui::SettingsDialog *ui = nullptr;
 
     Parameters m_params;
+    QSettings m_settings;
 
     void fillInfo(Parameters &params);
 
     bool newParamsCorrect();
 
+    void readSettings();
+    void writeSettings();
+
 signals:
-    void getParams();
     void setParams(SettingsDialog::Parameters);
 
 private slots:
-    void getParamsHandler(QString data);
     void setParamsPrepare();
-    void updateParamChecker(QString data);
+    void getParams();
 };
 
 #endif // SETTINGSDIALOG_H

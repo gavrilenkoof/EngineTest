@@ -12,7 +12,8 @@
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SettingsDialog)
+    ui(new Ui::SettingsDialog),
+    m_settings("UAV", "EngineTest")
 {
     ui->setupUi(this);
     setWindowTitle("Parameters");
@@ -23,20 +24,51 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->line_param9->setReadOnly(true);
     ui->line_param10->setReadOnly(true);
 
-    connect(ui->btnGetParam, SIGNAL(clicked()), this, SIGNAL(getParams()));
+    connect(ui->btnGetParam, SIGNAL(clicked()), this, SLOT(getParams()));
     connect(ui->btnSetParam, SIGNAL(clicked()), this, SLOT(setParamsPrepare()));
+
+    readSettings();
+    fillInfo(m_params);
 
 
 }
 
 SettingsDialog::~SettingsDialog()
 {
+    writeSettings();
     delete ui;
 }
 
 SettingsDialog::Parameters SettingsDialog::parameters() const
 {
     return m_params;
+}
+
+void SettingsDialog::readSettings()
+{
+    m_settings.beginGroup("/Parameters");
+
+    m_params.gain = m_settings.value("/gain", 7).toInt();
+    m_params.scale = m_settings.value("/scale", 13421.0).toDouble();
+    m_params.bias_x = m_settings.value("/bias_x", 0.0).toDouble();
+    m_params.bias_y = m_settings.value("/bias_y", -0.00001).toDouble();
+    m_params.baudrate = m_settings.value("/baudrate", 1000000).toUInt();
+
+    m_settings.endGroup();
+}
+
+void SettingsDialog::writeSettings()
+{
+    qDebug() << "Save params";
+    m_settings.beginGroup("/Parameters");
+
+    m_settings.setValue("/gain", m_params.gain);
+    m_settings.setValue("/scale", m_params.scale);
+    m_settings.setValue("/bias_x", m_params.bias_x);
+    m_settings.setValue("/bias_y", m_params.bias_y);
+    m_settings.setValue("/baudrate", m_params.baudrate);
+
+    m_settings.endGroup();
 }
 
 void SettingsDialog::fillInfo(SettingsDialog::Parameters &params)
@@ -50,48 +82,10 @@ void SettingsDialog::fillInfo(SettingsDialog::Parameters &params)
     ui->lbl_status->setText("Status: get parameters");
 }
 
-void SettingsDialog::getParamsHandler(QString data)
-{
-//    qDebug() << data;
-
-//    data = "Par:Gain: 7.4;Scale: 1.53;BiasX: 0.001;BiasY: 0.002;Baudrate: 9600;\r\n";
-    QVector<double> params;
-    QRegularExpression re;
-    re.setPattern("([-]?\\d*\\.?\\d+)");
-
-    auto it = re.globalMatch(data);
-    while(it.hasNext()){
-        auto match = it.next();
-        params.append(match.captured(0).toDouble());
-    }
-
-    m_params.gain = params.at(0);
-    m_params.scale = params.at(1);
-    m_params.bias_x = params.at(2);
-    m_params.bias_y = params.at(3);
-    m_params.baudrate = params.at(4);
-
-    qDebug() << m_params.gain << m_params.scale << m_params.bias_x << m_params.bias_y << m_params.baudrate;
-
-    fillInfo(m_params);
-
-}
-
 bool SettingsDialog::newParamsCorrect()
 {
-//    SettingsDialog::Parameters copy_param = parameters();
 
-    bool res = false;
-
-    qint32 baudrate = ui->line_param5->text().toInt();
-    if(baudrate == 9600 || baudrate == 19200 || baudrate == 38400 || baudrate == 57600 || baudrate == 115200){
-        res = true;
-    }else{
-        ui->lbl_status->setText("Status: baudrate param invalid value");
-        res = false;
-    }
-
-    return res;
+    return true;
 
 }
 
@@ -106,37 +100,13 @@ void SettingsDialog::setParamsPrepare()
         m_params.bias_y = ui->line_param4->text().toDouble();
         m_params.baudrate = ui->line_param5->text().toInt();
 
-//        qDebug() << m_params.gain << m_params.scale << m_params.bias_x << m_params.bias_y << m_params.baudrate;
-
         emit setParams(m_params);
     }
 }
 
 
-void SettingsDialog::updateParamChecker(QString data)
+
+void SettingsDialog::getParams()
 {
-    /*
-     * Symbolical checking params
-     */
-    qDebug() << data;
-//    QVector<double> params;
-////    data = "Set gain -> 31Set scale -> 41.00Set biasX -> 0.00Set biasY -> 12.00\r\n";
-
-//    QRegularExpression re;
-//    re.setPattern("(Set)");
-
-//    auto it = re.globalMatch(data);
-
-//    while(it.hasNext()){
-//        auto match = it.next();
-//        params.append(match.captured(0).toDouble());
-//    }
-
-//    qsizetype size_param = sizeof(m_params)/sizeof(m_params.gain);
-
-//    if(params.size() == size_param){
-//        ui->lbl_status->setText("Status: parameters are set successfully");
-//    }else{
-//        ui->lbl_status->setText("Status: parameters are not set");
-//    }
+    fillInfo(m_params);
 }
