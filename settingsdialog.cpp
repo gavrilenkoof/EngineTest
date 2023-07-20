@@ -60,7 +60,7 @@ void SettingsDialog::readSettings()
 
 void SettingsDialog::writeSettings()
 {
-    qDebug() << "Save params";
+//    qDebug() << "Save params";
     m_settings.beginGroup("/Parameters");
 
     m_settings.setValue("/gain", m_params.gain);
