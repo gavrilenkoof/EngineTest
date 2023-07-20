@@ -9,14 +9,14 @@ void Logger::messageHandler(QtMsgType type, const QMessageLogContext &context, c
     // Open stream file writes
     Logger & logger = Logger::create();
     QTextStream out(logger.getData());
-    // Write the date of recording
-    out << QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]");
     // By type determine to what level belongs message
     switch (type)
     {
     case QtInfoMsg:
 //        out << " INFO ";
 //        out << context.function << " : " << msg << Qt::endl;
+        // Write the date of recording
+        out << QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]");
         out << msg << Qt::endl;
         break;
     case QtDebugMsg:
