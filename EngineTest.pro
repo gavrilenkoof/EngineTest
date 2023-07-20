@@ -1,29 +1,35 @@
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport serialport
 
 CONFIG += c++17
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+QMAKE_LFLAGS += -no-pie
 
 SOURCES += \
     axistag.cpp \
     main.cpp \
     mainwindow.cpp \
     qcustomplot.cpp \
-    realtimegraphs.cpp
+    realtimegraphs.cpp \
+    serialport.cpp \
+    settingsdialog.cpp
 
 HEADERS += \
     axistag.h \
     mainwindow.h \
     qcustomplot.h \
-    realtimegraphs.h
+    realtimegraphs.h \
+    serialport.h \
+    settingsdialog.h
 
 FORMS += \
     mainwindow.ui \
-    realtimegraphs.ui
+    realtimegraphs.ui \
+    settingsdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

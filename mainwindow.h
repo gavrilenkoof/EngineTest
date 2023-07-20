@@ -3,8 +3,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "realtimegraphs.h"
+#include <QCloseEvent>
 
+#include "serialport.h"
+#include "settingsdialog.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -20,10 +22,22 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void serialListHandler();
+    void btnConnectionSerial(bool state);
+    void consoleInfo(QString const message);
+
+    void handleError(QSerialPort::SerialPortError error);
+
+    void newDataTableHandler(QVector<double> data);
+
 private:
     Ui::MainWindow *ui;
 
-    RealTimeGraphs *rtg;
+    SerialPort *m_pserial = nullptr;
+    SettingsDialog *m_settings = nullptr;
+
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H
