@@ -9,9 +9,12 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-//    qSetMessagePattern("[%{time yyyy.MM.dd hh:mm:ss:zzz} %{type}] %{appname} %{function} - %{message}");
+#if defined(RELEASE)
     qSetMessagePattern("[%{time yyyy.MM.dd hh:mm:ss:zzz} %{message}");
     Logger::create();
+#else
+    qSetMessagePattern("[%{time yyyy.MM.dd hh:mm:ss:zzz} %{type}] %{appname} %{function} - %{message}");
+#endif
 
     MainWindow w;
     w.show();

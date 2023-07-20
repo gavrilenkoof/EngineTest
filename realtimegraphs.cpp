@@ -110,7 +110,14 @@ void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &time
 void RealTimeGraphs::logData(double &torque, double &rpm, double &timestamp,double &sampletime)
 {
     Q_UNUSED(sampletime);
+#ifdef RELEASE
     qInfo() << torque << " " << rpm << " " << timestamp;
+#else
+    Q_UNUSED(torque);
+    Q_UNUSED(rpm);
+    Q_UNUSED(timestamp);
+#endif
+
 }
 
 void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
