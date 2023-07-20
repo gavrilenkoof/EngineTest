@@ -51,6 +51,7 @@ bool SerialPort::openSerialPort(QString port_name, int baudrate)
         m_pserial->setParity(QSerialPort::Parity::NoParity);
         m_pserial->setStopBits(QSerialPort::StopBits::OneStop);
         m_pserial->setFlowControl(QSerialPort::FlowControl::NoFlowControl);
+        m_pserial->setReadBufferSize((10 * 1024));
         if(m_pserial->open(QIODevice::ReadWrite)){
             qDebug() << "Connected to " << m_pserial->portName() << ":" << m_pserial->baudRate()
                      << "," << m_pserial->dataBits() << "," << m_pserial->parity() << "," << m_pserial->stopBits()
@@ -197,28 +198,28 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     memmove(&torque_adc, temp_arr, 4);
     value["Torque"] = torque_adc;
 
-    data_begin = temp_data.indexOf("R:");
+    data_begin = temp_data.indexOf(";R:");
     if(data_begin == -1){
         qDebug() << "Error parse: bad message, could found 'R:'";
         return;
     }
 
     rpm = 0;
-    parseData(temp_data, temp_arr, data_begin, 4, 2);
+    parseData(temp_data, temp_arr, data_begin, 4, 3);
     memmove(&rpm, temp_arr, 4);
     value["RPM"] = rpm;
     if(rpm > 0){
         qDebug() << "Error PRM value";
     }
 
-    data_begin = temp_data.indexOf("Tm:");
+    data_begin = temp_data.indexOf(";Tm:");
     if(data_begin == -1){
         qDebug() << "Error parse: bad message, could found 'Tm:'";
         return;
     }
 
     timestamp = 0;
-    parseData(temp_data, temp_arr, data_begin, 8, 3);
+    parseData(temp_data, temp_arr, data_begin, 8, 4);
     memmove(&timestamp, temp_arr, 8);
     value["Timestamp"] = timestamp;
 

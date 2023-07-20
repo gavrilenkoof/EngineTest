@@ -137,9 +137,6 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 
         rpm = data_dict["RPM"];
 //        appendDoubleAndTrunc(&m_rpm, rpm, size);
-        if(rpm > 0){
-            qDebug() << "ERROR RPM" <<rpm;
-        }
 
         timestamp = data_dict["Timestamp"] / 1000000.0; // us to sec with point
 //        appendDoubleAndTrunc(&m_timestamp, timestamp, size);
