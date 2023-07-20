@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 
 //    qSetMessagePattern("[%{time yyyy.MM.dd hh:mm:ss:zzz} %{type}] %{appname} %{function} - %{message}");
     qSetMessagePattern("[%{time yyyy.MM.dd hh:mm:ss:zzz} %{message}");
-//    Logger::create();
+    Logger::create();
 
     MainWindow w;
     w.show();
