@@ -210,10 +210,10 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     memmove(&rpm, temp_arr, 4);
     value["RPM"] = rpm;
 
-    if(rpm > 0){
-        qDebug() << "Bad value: 'R:'";
-        return;
-    }
+//    if(rpm > 0){
+//        qDebug() << "Bad value: 'R:'";
+//        return;
+//    }
 
     data_begin = temp_data.indexOf(";Tm:");
 
@@ -227,10 +227,10 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     memmove(&timestamp, temp_arr, 8);
     value["Timestamp"] = timestamp;
 
-    if((int)timestamp - (int)prev_timestamp > 10000000){
-        qDebug() << "Bad value: 'Tm";
-        return;
-    }
+//    if((int)timestamp - (int)prev_timestamp > 10000000){
+//        qDebug() << "Bad value: 'Tm";
+//        return;
+//    }
 
     prev_timestamp = timestamp;
 
