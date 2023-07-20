@@ -28,10 +28,12 @@ private:
         // Set the logging file
         // check which a path to file you use
         std::filesystem::create_directory("logs/");
-        QString file_name = "logs/logFile-" + QDateTime::currentDateTime().toString("dd-MM-yyyy_hh:mm:ss") + ".txt";
+        QString file_name = "logs/logFile-" + QDateTime::currentDateTime().toString("dd-MM-yyyy_hh_mm_ss") + ".txt";
         m_logFile.reset(new QFile(file_name));
         // Open the file logging
-        m_logFile.data()->open(QFile::Append | QFile::Text);
+        if(!m_logFile.data()->open(QFile::Append | QFile::Text)){
+            qDebug() << m_logFile->fileName() << m_logFile->errorString();
+        }
     }
     ~Logger()
     {
