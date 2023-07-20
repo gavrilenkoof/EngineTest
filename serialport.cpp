@@ -57,6 +57,7 @@ bool SerialPort::openSerialPort(QString port_name, int baudrate)
                      << "," <<  m_pserial->flowControl();
             emit showStatusMessage(tr("Connected to %1").arg(m_pserial->portName()));
             m_pserial->clear();
+            m_pserial->setDataTerminalReady(true);
             return true;
         }else{
             emit showStatusMessage(tr("Cannot connect to %1").arg(m_pserial->portName()));
@@ -121,11 +122,11 @@ void SerialPort::readData()
         return;
     }
 
-    while(m_data_bytes.size() > 0){
+    while(m_data_bytes.size() >= data_bytes){
         m_data_begin = m_data_bytes.indexOf("T:");
         m_data_end = m_data_bytes.indexOf("endl");
 
-        if(m_data_begin < m_data_end){
+        if(m_data_begin < m_data_end && m_data_begin != -1){
             m_temp_data = m_data_bytes.mid(m_data_begin, m_data_end - m_data_begin + 4); // 4 bytes = "endl"
             m_data_bytes.remove(m_data_begin, m_data_end - m_data_begin + 4);
         }else if(m_data_end == -1){
@@ -135,17 +136,18 @@ void SerialPort::readData()
             m_end_batch_data = m_data_bytes.mid(0, m_data_end + 4);
             m_temp_data = m_start_batch_data + m_end_batch_data;
             m_data_bytes.remove(0, m_data_end + 4);
+        }else if(m_data_begin == -1){
+            qDebug() << "m_data_begin == -1. Skip";
+            m_data_bytes.remove(0, data_bytes);
         }else{
             qDebug() << "Error: unknown parse.";
+            m_data_bytes.remove(0, data_bytes);
         }
 
         if(m_temp_data.size() == data_bytes){
-//            qDebug() << m_temp_data;
             handleMsg(m_temp_data, m_data_begin, m_temp_arr, value);
-//            ++correct_data;
         }else{
 //            qDebug() << "ERROR: data size error.";
-//            ++incorrect_data;
         }
 
 
@@ -178,27 +180,54 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
      *  - - sampletime (us)
      */
 
+    static uint32_t torque_adc = 0;
+    static uint32_t rpm = 0;
+    static uint64_t timestamp = 0;
+    static uint32_t sampletime = 0;
+
     data_begin = temp_data.indexOf("T:");
-    uint32_t torque_adc = 0;
+
+    if(data_begin == -1){
+        qDebug() << "Error parse: bad message, could found 'T:'";
+        return;
+    }
+
+    torque_adc = 0;
     parseData(temp_data, temp_arr, data_begin, 4, 2);
     memmove(&torque_adc, temp_arr, 4);
     value["Torque"] = torque_adc;
 
     data_begin = temp_data.indexOf("R:");
-    uint32_t rpm = 0;
+    if(data_begin == -1){
+        qDebug() << "Error parse: bad message, could found 'R:'";
+        return;
+    }
+
+    rpm = 0;
     parseData(temp_data, temp_arr, data_begin, 4, 2);
     memmove(&rpm, temp_arr, 4);
     value["RPM"] = rpm;
+    if(rpm > 0){
+        qDebug() << "Error PRM value";
+    }
 
     data_begin = temp_data.indexOf("Tm:");
-    uint64_t timestamp = 0;
+    if(data_begin == -1){
+        qDebug() << "Error parse: bad message, could found 'Tm:'";
+        return;
+    }
+
+    timestamp = 0;
     parseData(temp_data, temp_arr, data_begin, 8, 3);
     memmove(&timestamp, temp_arr, 8);
     value["Timestamp"] = timestamp;
 
-//    data_begin = 26;
     data_begin = temp_data.indexOf("-");
-    uint32_t sampletime = 0;
+    if(data_begin == -1){
+        qDebug() << "Error parse: bad message, could found '-:'";
+        return;
+    }
+    sampletime = 0;
     parseData(temp_data, temp_arr, data_begin, 4, 0);
     memmove(&sampletime, temp_arr, 4);
     value["Sampletime"] = sampletime;

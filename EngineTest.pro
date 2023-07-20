@@ -11,6 +11,7 @@ QMAKE_LFLAGS += -no-pie
 
 SOURCES += \
     axistag.cpp \
+    logger.cpp \
     main.cpp \
     mainwindow.cpp \
     qcustomplot.cpp \
@@ -20,6 +21,7 @@ SOURCES += \
 
 HEADERS += \
     axistag.h \
+    logger.h \
     mainwindow.h \
     qcustomplot.h \
     realtimegraphs.h \
