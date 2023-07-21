@@ -51,7 +51,7 @@ bool SerialPort::openSerialPort(QString port_name, int baudrate)
         m_pserial->setParity(QSerialPort::Parity::NoParity);
         m_pserial->setStopBits(QSerialPort::StopBits::OneStop);
         m_pserial->setFlowControl(QSerialPort::FlowControl::NoFlowControl);
-        m_pserial->setReadBufferSize((10 * 1024));
+//        m_pserial->setReadBufferSize((100 * 1024));
         if(m_pserial->open(QIODevice::ReadWrite)){
             qDebug() << "Connected to " << m_pserial->portName() << ":" << m_pserial->baudRate()
                      << "," << m_pserial->dataBits() << "," << m_pserial->parity() << "," << m_pserial->stopBits()
@@ -107,7 +107,7 @@ void SerialPort::readData()
     static int const data_bytes = 34; // msg size in bytes
     static QString find_adc_start;
 
-    if(m_pserial->bytesAvailable() < (data_bytes * 100)){
+    if(m_pserial->bytesAvailable() < (data_bytes * 10)){
         return;
     }
 
