@@ -188,10 +188,12 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     static uint32_t rpm = 0;
     static uint64_t timestamp = 0;
     static uint32_t sampletime = 0;
+    static qsizetype check_err_msg = 0;
 
     data_begin = temp_data.indexOf("T:");
+    check_err_msg = temp_data.indexOf("T:", data_begin + 1);
 
-    if(data_begin == -1){
+    if(data_begin == -1 || check_err_msg != -1){
         qDebug() << "Error parse: bad message, could found 'T:'";
         ++m_incorrect_data;
         return;
@@ -200,10 +202,12 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     torque_adc = 0;
     parseData(temp_data, temp_arr, data_begin, 4, 2);
     memmove(&torque_adc, temp_arr, 4);
+
     value["Torque"] = torque_adc;
 
     data_begin = temp_data.indexOf(";R:");
-    if(data_begin == -1){
+    check_err_msg = temp_data.indexOf(";R:", data_begin + 1);
+    if(data_begin == -1 || check_err_msg != -1){
         qDebug() << "Error parse: bad message, could found 'R:'";
         ++m_incorrect_data;
         return;
@@ -218,7 +222,8 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     }
 
     data_begin = temp_data.indexOf(";Tm:");
-    if(data_begin == -1){
+    check_err_msg = temp_data.indexOf(";Tm:", data_begin + 1);
+    if(data_begin == -1 || check_err_msg != -1){
         qDebug() << "Error parse: bad message, could found 'Tm:'";
         ++m_incorrect_data;
         return;
@@ -230,13 +235,14 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     value["Timestamp"] = timestamp;
 
     data_begin = temp_data.indexOf("-");
+//    check_err_msg = temp_data.indexOf("-", data_begin);
     if(data_begin == -1){
         qDebug() << "Error parse: bad message, could found '-:'";
         ++m_incorrect_data;
         return;
     }
     sampletime = 0;
-    parseData(temp_data, temp_arr, data_begin, 4, 0);
+    parseData(temp_data, temp_arr, data_begin, 4, 1);
     memmove(&sampletime, temp_arr, 4);
     value["Sampletime"] = sampletime;
 
