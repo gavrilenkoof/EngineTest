@@ -140,15 +140,18 @@ void SerialPort::readData()
         }else if(m_data_begin == -1){
             qDebug() << "m_data_begin == -1. Skip";
             m_data_bytes.remove(0, data_bytes);
+            ++m_incorrect_data;
         }else{
             qDebug() << "Error: unknown parse.";
             m_data_bytes.remove(0, data_bytes);
+            ++m_incorrect_data;
         }
 
         if(m_temp_data.size() == data_bytes){
             handleMsg(m_temp_data, m_data_begin, m_temp_arr, value);
         }else{
 //            qDebug() << "ERROR: data size error.";
+            ++m_incorrect_data;
         }
 
 
@@ -157,8 +160,8 @@ void SerialPort::readData()
     emit newDataAvailable(m_dict_values);
 
 
-//    double percent = (static_cast<double>(incorrect_data))/(incorrect_data + correct_data);
-//    qDebug() << tr("%1").arg(QString::number(percent, 'g')) << "correct_data: " << correct_data << "incorrect_data: " << incorrect_data;
+    double percent = (static_cast<double>(m_incorrect_data))/(m_incorrect_data + m_correct_data);
+    qDebug() << tr("%1").arg(QString::number(percent, 'g')) << "correct_data: " << m_correct_data << "incorrect_data: " << m_incorrect_data;
 
     m_dict_values.clear();
     m_data_bytes.clear();
@@ -190,6 +193,7 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
 
     if(data_begin == -1){
         qDebug() << "Error parse: bad message, could found 'T:'";
+        ++m_incorrect_data;
         return;
     }
 
@@ -201,6 +205,7 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     data_begin = temp_data.indexOf(";R:");
     if(data_begin == -1){
         qDebug() << "Error parse: bad message, could found 'R:'";
+        ++m_incorrect_data;
         return;
     }
 
@@ -215,6 +220,7 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     data_begin = temp_data.indexOf(";Tm:");
     if(data_begin == -1){
         qDebug() << "Error parse: bad message, could found 'Tm:'";
+        ++m_incorrect_data;
         return;
     }
 
@@ -226,6 +232,7 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     data_begin = temp_data.indexOf("-");
     if(data_begin == -1){
         qDebug() << "Error parse: bad message, could found '-:'";
+        ++m_incorrect_data;
         return;
     }
     sampletime = 0;
@@ -234,4 +241,5 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     value["Sampletime"] = sampletime;
 
     m_dict_values.append(value);
+    ++m_correct_data;
 }

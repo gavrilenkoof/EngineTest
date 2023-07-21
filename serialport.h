@@ -44,6 +44,9 @@ private:
     qsizetype m_data_begin;
     qsizetype m_data_end;
 
+    int m_correct_data = 0;
+    int m_incorrect_data = 0;
+
     QVector<QMap<QString, uint64_t>> m_dict_values;
 
     void writeData(QByteArray const &data);
