@@ -46,6 +46,9 @@ private:
 
     QVector<QMap<QString, uint64_t>> m_dict_values;
 
+    int m_correct_data = 0;
+    int m_incorrect_data = 0;
+
     void writeData(QByteArray const &data);
     void parseData(QByteArray &data, uint8_t values[], int data_begin, qsizetype bytes, qsizetype bias);
     void handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t temp_arr[], QMap<QString, uint64_t> &value);

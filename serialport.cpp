@@ -51,7 +51,7 @@ bool SerialPort::openSerialPort(QString port_name, int baudrate)
         m_pserial->setParity(QSerialPort::Parity::NoParity);
         m_pserial->setStopBits(QSerialPort::StopBits::OneStop);
         m_pserial->setFlowControl(QSerialPort::FlowControl::NoFlowControl);
-        m_pserial->setReadBufferSize((10 * 1024));
+//        m_pserial->setReadBufferSize((10 * 1024));
         if(m_pserial->open(QIODevice::ReadWrite)){
             qDebug() << "Connected to " << m_pserial->portName() << ":" << m_pserial->baudRate()
                      << "," << m_pserial->dataBits() << "," << m_pserial->parity() << "," << m_pserial->stopBits()
@@ -107,7 +107,7 @@ void SerialPort::readData()
     static int const data_bytes = 34; // msg size in bytes
     static QString find_adc_start;
 
-    if(m_pserial->bytesAvailable() < (data_bytes * 100)){
+    if(m_pserial->bytesAvailable() < (data_bytes * 10)){
         return;
     }
 
@@ -140,15 +140,18 @@ void SerialPort::readData()
         }else if(m_data_begin == -1){
             qDebug() << "m_data_begin == -1. Skip";
             m_data_bytes.remove(0, data_bytes);
+            ++m_incorrect_data;
         }else{
             qDebug() << "Error: unknown parse.";
             m_data_bytes.remove(0, data_bytes);
+            ++m_incorrect_data;
         }
 
         if(m_temp_data.size() == data_bytes){
             handleMsg(m_temp_data, m_data_begin, m_temp_arr, value);
         }else{
 //            qDebug() << "ERROR: data size error.";
+            ++m_incorrect_data;
         }
 
 
@@ -157,8 +160,8 @@ void SerialPort::readData()
     emit newDataAvailable(m_dict_values);
 
 
-//    double percent = (static_cast<double>(incorrect_data))/(incorrect_data + correct_data);
-//    qDebug() << tr("%1").arg(QString::number(percent, 'g')) << "correct_data: " << correct_data << "incorrect_data: " << incorrect_data;
+    double percent = (static_cast<double>(m_incorrect_data))/(m_incorrect_data + m_correct_data);
+    qDebug() << tr("%1").arg(QString::number(percent, 'g')) << "correct_data: " << m_correct_data << "incorrect_data: " << m_incorrect_data;
 
     m_dict_values.clear();
     m_data_bytes.clear();
@@ -189,7 +192,8 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     data_begin = temp_data.indexOf("T:");
 
     if(data_begin == -1){
-        qDebug() << "Error parse: bad message, could found 'T:'";
+        qDebug() << "Error parse: bad message, could not found 'T:'";
+        ++m_incorrect_data;
         return;
     }
 
@@ -200,7 +204,8 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
 
     data_begin = temp_data.indexOf(";R:");
     if(data_begin == -1){
-        qDebug() << "Error parse: bad message, could found 'R:'";
+        qDebug() << "Error parse: bad message, could not found 'R:'";
+        ++m_incorrect_data;
         return;
     }
 
@@ -214,7 +219,8 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
 
     data_begin = temp_data.indexOf(";Tm:");
     if(data_begin == -1){
-        qDebug() << "Error parse: bad message, could found 'Tm:'";
+        qDebug() << "Error parse: bad message, could not found 'Tm:'";
+        ++m_incorrect_data;
         return;
     }
 
@@ -223,15 +229,22 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     memmove(&timestamp, temp_arr, 8);
     value["Timestamp"] = timestamp;
 
+    if(timestamp >= 417934045427981968){
+        qDebug() << timestamp;
+    }
+
     data_begin = temp_data.indexOf("-");
     if(data_begin == -1){
-        qDebug() << "Error parse: bad message, could found '-:'";
+        qDebug() << "Error parse: bad message, could not found '-'";
+        ++m_incorrect_data;
         return;
     }
     sampletime = 0;
-    parseData(temp_data, temp_arr, data_begin, 4, 0);
+    parseData(temp_data, temp_arr, data_begin, 4, 1);
     memmove(&sampletime, temp_arr, 4);
     value["Sampletime"] = sampletime;
 
     m_dict_values.append(value);
+    ++m_correct_data;
+
 }
