@@ -164,9 +164,9 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 
 void RealTimeGraphs::timerSlot()
 {
-    static bool found_range = false;
-    static double new_upper = 0.0;
-    static double new_lower = 0.0;
+//    static bool found_range = false;
+//    static double new_upper = 0.0;
+//    static double new_lower = 0.0;
 
     if(m_update_val_plot){
         ui->plot_1->xAxis->rescale(true);
