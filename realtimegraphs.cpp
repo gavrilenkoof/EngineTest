@@ -9,7 +9,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 
     ui->lbl_torque->setText("Torque (N*m): ");
     ui->lbl_rpm->setText("RPM: ");
-    ui->label->setText("");
+    ui->lbl_power->setText("Power (W): ");
     ui->label_2->setText("");
 
     // Configuration first graph
@@ -67,7 +67,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     m_timer_update_graphs.start(1);
 
     // Init log table in file
-    qInfo() << "Torque (N*m)" << " " << "RPM" << " " << "Timestamp (s)";
+    qInfo() << "Torque (N*m)" << " " << "RPM" << " " << "Timestamp (s)" << " " << "Power (W)";
 
 
 }
@@ -98,24 +98,26 @@ void RealTimeGraphs::updateGraphs(double &torque, double &rpm, double &timestamp
     ui->plot_2->graph(0)->addData(timestamp, torque);
 }
 
-void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &timestamp,double &sampletime)
+void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &timestamp, double &sampletime, double &power)
 {
     Q_UNUSED(timestamp);
     Q_UNUSED(sampletime);
     ui->lbl_rpm->setText(tr("RPM: %1").arg(QString::number(rpm, 'g', 6)));
     ui->lbl_torque->setText(tr("Torque (N*m): %1").arg(QString::number(torque, 'g', 6)));
+    ui->lbl_power->setText(tr("Power (W): %1").arg(QString::number(power, 'g', 6)));
 }
 
 
-void RealTimeGraphs::logData(double &torque, double &rpm, double &timestamp,double &sampletime)
+void RealTimeGraphs::logData(double &torque, double &rpm, double &timestamp,double &sampletime, double &power)
 {
     Q_UNUSED(sampletime);
 #ifdef RELEASE
-    qInfo() << torque << " " << rpm << " " << timestamp;
+    qInfo() << torque << " " << rpm << " " << timestamp << " " << power;
 #else
     Q_UNUSED(torque);
     Q_UNUSED(rpm);
     Q_UNUSED(timestamp);
+    Q_UNUSED(power);
 #endif
 
 }
@@ -128,6 +130,7 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
     static double rpm = 0;
     static double timestamp = 0;
     static double sampletime = 0;
+    static double power = 0;
 
 
     for(auto &data_dict: data){
@@ -144,9 +147,11 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
         sampletime = data_dict["Sampletime"];
 //        appendDoubleAndTrunc(&m_sampletime, sampletime, size);
 
-        updateTableValues(torque, rpm, timestamp, sampletime);
+        power = torque * rpm / 9550.0;
+
+        updateTableValues(torque, rpm, timestamp, sampletime, power);
         updateGraphs(torque, rpm, timestamp, sampletime);
-        logData(torque, rpm, timestamp, sampletime);
+        logData(torque, rpm, timestamp, sampletime, power);
         m_update_val_plot = true;
 
     }

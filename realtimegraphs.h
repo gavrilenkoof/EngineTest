@@ -54,8 +54,8 @@ private:
     double const m_x_axis_range = 60.0; // seconds
 
     void updateGraphs(double &torque, double &rpm, double &timestamp, double &sampletime);
-    void updateTableValues(double &torque, double &rpm, double &timestamp,double &sampletime);
-    void logData(double &torque, double &rpm, double &timestamp,double &sampletime);
+    void updateTableValues(double &torque, double &rpm, double &timestamp,double &sampletime, double &power);
+    void logData(double &torque, double &rpm, double &timestamp,double &sampletime, double &power);
 
     SettingsDialog::Parameters m_params;
 
