@@ -66,6 +66,9 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     connect(&m_timer_update_graphs, SIGNAL(timeout()), this, SLOT(timerSlot()));
     m_timer_update_graphs.start(1);
 
+    // Init log table in file
+    qInfo() << "Torque (N*m)" << " " << "RPM" << " " << "Timestamp (s)";
+
 
 }
 
@@ -93,8 +96,6 @@ void RealTimeGraphs::updateGraphs(double &torque, double &rpm, double &timestamp
     Q_UNUSED(sampletime);
     ui->plot_1->graph(0)->addData(timestamp, rpm);
     ui->plot_2->graph(0)->addData(timestamp, torque);
-//    ui->plot_2->graph(0)->setData(m_timestamp, m_rpm, true);
-//    ui->plot_1->graph(0)->setData(m_timestamp, m_torque, true);
 }
 
 void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &timestamp,double &sampletime)
@@ -105,6 +106,19 @@ void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &time
     ui->lbl_torque->setText(tr("Torque (N*m): %1").arg(QString::number(torque, 'g', 6)));
 }
 
+
+void RealTimeGraphs::logData(double &torque, double &rpm, double &timestamp,double &sampletime)
+{
+    Q_UNUSED(sampletime);
+#ifdef RELEASE
+    qInfo() << torque << " " << rpm << " " << timestamp;
+#else
+    Q_UNUSED(torque);
+    Q_UNUSED(rpm);
+    Q_UNUSED(timestamp);
+#endif
+
+}
 
 void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 {
@@ -123,9 +137,6 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 
         rpm = data_dict["RPM"];
 //        appendDoubleAndTrunc(&m_rpm, rpm, size);
-        if(rpm > 0){
-            qDebug() << "ERROR RPM" <<rpm;
-        }
 
         timestamp = data_dict["Timestamp"] / 1000000.0; // us to sec with point
 //        appendDoubleAndTrunc(&m_timestamp, timestamp, size);
@@ -135,6 +146,7 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 
         updateTableValues(torque, rpm, timestamp, sampletime);
         updateGraphs(torque, rpm, timestamp, sampletime);
+        logData(torque, rpm, timestamp, sampletime);
         m_update_val_plot = true;
 
     }

@@ -55,6 +55,7 @@ private:
 
     void updateGraphs(double &torque, double &rpm, double &timestamp, double &sampletime);
     void updateTableValues(double &torque, double &rpm, double &timestamp,double &sampletime);
+    void logData(double &torque, double &rpm, double &timestamp,double &sampletime);
 
     SettingsDialog::Parameters m_params;
 
