@@ -133,7 +133,7 @@ void SerialPort::readData()
         }else if(m_data_end == -1){
             m_start_batch_data = m_data_bytes.mid(0, m_data_bytes.size());
             m_data_bytes.remove(0, m_data_bytes.size());
-        }else if(m_data_begin > m_data_end){
+        }else if(m_data_begin > m_data_end){ // TODO Add m_data_begin == -1
             m_end_batch_data = m_data_bytes.mid(0, m_data_end + 4);
             m_temp_data = m_start_batch_data + m_end_batch_data;
             m_data_bytes.remove(0, m_data_end + 4);
