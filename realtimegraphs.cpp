@@ -136,6 +136,7 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 //        appendDoubleAndTrunc(&m_sampletime, sampletime, size);
 
         power = torque * rpm / 9550.0;
+        rpm = rpm * 1.58;
 
         updateTableValues(torque, rpm, timestamp, sampletime, power);
         updateGraphs(torque, rpm, timestamp, sampletime);
