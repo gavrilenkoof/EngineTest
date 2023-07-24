@@ -7,7 +7,7 @@ SerialPort::SerialPort(QObject *parent)
 
 
     connect(&m_timer_upd_serials, SIGNAL(timeout()), this, SLOT(timerSlotUpdCountSerials()));
-    m_timer_upd_serials.start(1000);
+    m_timer_upd_serials.start(500);
 
 //    connect(m_pserial, &QSerialPort::errorOccurred, this, &SerialPort::handleError);
     connect(m_pserial, SIGNAL(errorOccurred(QSerialPort::SerialPortError)), this, SIGNAL(errorSerial(QSerialPort::SerialPortError)));

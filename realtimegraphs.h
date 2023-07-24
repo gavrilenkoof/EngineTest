@@ -25,6 +25,7 @@ public:
 
 private slots:
     void timerSlot();
+    void updateTableSlot();
 
     void newDataHandler(QVector<QMap<QString, uint64_t>> data);
     void setParamRequest(SettingsDialog::Parameters params);
@@ -45,10 +46,13 @@ private:
     qint64 m_last_update_time;
     QVector<double> m_seconds;
 
-    QVector<double> m_torque;
-    QVector<double> m_rpm;
-    QVector<double> m_timestamp;
-    QVector<double> m_sampletime;
+    QTimer m_timer_update_table;
+    static int const size = 500;
+//    QVector<double> m_torque;
+//    QVector<double> m_rpm;
+//    QVector<double> m_timestamp;
+//    QVector<double> m_sampletime;
+
     bool m_update_val_plot;
 
     double const m_x_axis_range = 60.0; // seconds
