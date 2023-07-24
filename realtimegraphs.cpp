@@ -30,21 +30,13 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->plot_1->setVisible(true);
 
 
-//    m_tag1 = new AxisTag(ui->plot_1->graph(0)->valueAxis());
-//    m_tag1->setPen(ui->plot_1->graph(0)->pen());
-//    m_tag1->setText("0");
-
-
     // Configuration second graph
     ui->plot_2->yAxis->setTickLabels(false);
     ui->plot_2->yAxis2->setVisible(true);
     ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(20);
     ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setLabel("Torque (N*m)");
     ui->plot_2->axisRect()->axis(QCPAxis::atBottom, 0)->setLabel("Seconds (s)");
-//    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setNumberPrecision(2);
     ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setTickLabelPadding(10);
-//    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setNumberFormat("f");  // TODO FIX moving yaxis2
-//    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-5, 5);
 
     ui->plot_2->legend->setVisible(true);
     ui->plot_2->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
@@ -53,10 +45,6 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->plot_2->graph(0)->setPen(QPen(QColor(120, 250, 0)));
     ui->plot_2->graph(0)->setName("Torque (N*m)");
     ui->plot_2->setVisible(true);
-
-//    m_tag2 = new AxisTag(ui->plot_2->graph(0)->valueAxis());
-//    m_tag2->setPen(ui->plot_2->graph(0)->pen());
-//    m_tag2->setText("0");
 
     m_params.gain = 1;
     m_params.scale = 0;
@@ -156,8 +144,7 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 
     }
 
-//    updateGraphs(torque, rpm, timestamp, sampletime);
-//    m_update_val_plot = true;
+
 
 }
 
@@ -175,12 +162,12 @@ void RealTimeGraphs::timerSlot()
         ui->plot_2->xAxis->rescale(true);
         ui->plot_2->yAxis2->rescale(true);
 
-        if(ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) > m_x_axis_range){
+//        if(ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) > m_x_axis_range){
             ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
             ui->plot_2->xAxis->setRange(ui->plot_2->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
             ui->plot_1->graph(0)->data().data()->removeBefore((ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) - m_x_axis_range));
             ui->plot_2->graph(0)->data().data()->removeBefore((ui->plot_2->graph(0)->dataMainKey(ui->plot_2->graph(0)->dataCount() - 1) - m_x_axis_range));
-        }
+//        }
 
 //        m_range =  ui->plot_1->graph(0)->getValueRange(found_range);
 //        if(found_range){
@@ -198,7 +185,6 @@ void RealTimeGraphs::timerSlot()
 
         ui->plot_1->replot();
         ui->plot_2->replot();
-
 
         m_update_val_plot = false;
     }

@@ -47,11 +47,14 @@ private:
     int m_correct_data = 0;
     int m_incorrect_data = 0;
 
+    int const m_data_bytes_size = 34; // msg size in bytes
+
     QVector<QMap<QString, uint64_t>> m_dict_values;
 
     void writeData(QByteArray const &data);
     void parseData(QByteArray &data, uint8_t values[], int data_begin, qsizetype bytes, qsizetype bias);
     void handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t temp_arr[], QMap<QString, uint64_t> &value);
+    bool isMsgCorrect(QByteArray const &data, qsizetype &data_begin);
 
 
 private slots:
