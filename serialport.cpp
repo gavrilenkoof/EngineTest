@@ -58,8 +58,7 @@ bool SerialPort::openSerialPort(QString port_name, int baudrate)
                      << "," <<  m_pserial->flowControl();
             emit showStatusMessage(tr("Connected to %1").arg(m_pserial->portName()));
             m_pserial->clear();
-//            m_pserial->setDataTerminalReady(true);
-            m_pserial->setDataTerminalReady(false);
+            m_pserial->setDataTerminalReady(true);
             return true;
         }else{
             emit showStatusMessage(tr("Cannot connect to %1").arg(m_pserial->portName()));
