@@ -78,7 +78,6 @@ bool SerialPort::closeSerialPort()
         m_pserial->close();
         emit showStatusMessage(tr("Close %1 port").arg(m_pserial->portName()));
     }else{
-//        emit showStatusMessage("Critical error: port already closed or never been opened!");
         qDebug() << "Critical error: port already closed or never been opened or other error";
     }
 
@@ -192,9 +191,9 @@ void SerialPort::readData()
 
         if(isMsgCorrect(m_temp_data, m_data_begin)){
             handleMsg(m_temp_data, m_data_begin, m_temp_arr, value);
-            ++m_correct_data;
+//            ++m_correct_data;
         }else{
-            ++m_incorrect_data;
+//            ++m_incorrect_data;
         }
 
 
@@ -205,8 +204,8 @@ void SerialPort::readData()
     emit newDataAvailable(m_dict_values);
 
 
-    double percent = (static_cast<double>(m_incorrect_data))/(m_incorrect_data + m_correct_data);
-    qDebug() << tr("%1").arg(QString::number(percent, 'g')) << "correct_data: " << m_correct_data << "incorrect_data: " << m_incorrect_data;
+//    double percent = (static_cast<double>(m_incorrect_data))/(m_incorrect_data + m_correct_data);
+//    qDebug() << tr("%1").arg(QString::number(percent, 'g')) << "correct_data: " << m_correct_data << "incorrect_data: " << m_incorrect_data;
 
     m_dict_values.clear();
     m_data_bytes.clear();
