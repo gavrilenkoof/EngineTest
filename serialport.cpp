@@ -254,7 +254,6 @@ void SerialPort::handleMsg(QByteArray &temp_data, qsizetype &data_begin, uint8_t
     memmove(&timestamp, temp_arr, 8);
     value["Timestamp"] = timestamp;
 
-    // dont know why, but sometimes timestamp ~ 2^31 or similar value
     // TEST Code
     if(timestamp >= error_timestamp){
         return;
