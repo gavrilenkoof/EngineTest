@@ -20,6 +20,7 @@ SOURCES += \
     logger.cpp \
     main.cpp \
     mainwindow.cpp \
+    motorcharacteristics.cpp \
     qcustomplot.cpp \
     realtimegraphs.cpp \
     serialport.cpp \
@@ -29,6 +30,7 @@ HEADERS += \
     axistag.h \
     logger.h \
     mainwindow.h \
+    motorcharacteristics.h \
     qcustomplot.h \
     realtimegraphs.h \
     serialport.h \
