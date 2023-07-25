@@ -60,10 +60,12 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     // Init log table in file
     qInfo() << "Torque (N*m)" << " " << "RPM" << " " << "Timestamp (s)" << " " << "Power (W)";
 
-
     m_torque_filter.initFilter(m_size);
     m_rpm_filter.initFilter(m_size);
     m_power_filter.initFilter(m_size);
+
+
+
 }
 
 
@@ -86,7 +88,7 @@ RealTimeGraphs::~RealTimeGraphs()
     delete ui;
 }
 
-void RealTimeGraphs::updateGraphs(double &torque, double &rpm, double &timestamp,double &sampletime)
+void RealTimeGraphs::updateGraphs(double torque, double rpm, double timestamp,double sampletime)
 {
     Q_UNUSED(sampletime);
     ui->plot_1->graph(0)->addData(timestamp, rpm);
@@ -148,15 +150,18 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
         rpm = data_dict["RPM"];
 
         timestamp = data_dict["Timestamp"] / 1000000.0; // us to sec with point
-
         sampletime = data_dict["Sampletime"];
 
-        power = torque * rpm / 9550.0;
-        m_power_filter.filterRunAvg(power);
         rpm = rpm * 1.58;
         m_rpm_filter.filterRunAvg(rpm);
 
-        updateGraphs(torque, rpm, timestamp, sampletime);
+        power = m_torque_filter.getAvg() * m_rpm_filter.getAvg() * 0.1047;
+
+        m_motor_char.checkMaxTorque(m_torque_filter.getAvg(), m_rpm_filter.getAvg());
+        m_motor_char.checkMaxRpm(m_rpm_filter.getAvg());
+
+//        updateGraphs(torque, rpm, timestamp, sampletime);
+        updateGraphs(m_torque_filter.getAvg(), m_rpm_filter.getAvg(), timestamp, sampletime);
         logData(torque, rpm, timestamp, sampletime, power);
         m_update_val_plot = true;
 

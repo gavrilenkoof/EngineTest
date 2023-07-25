@@ -6,6 +6,7 @@
 #include "qcustomplot.h"
 #include "axistag.h"
 #include "settingsdialog.h"
+#include "motorcharacteristics.h"
 
 
 namespace Ui {
@@ -49,10 +50,7 @@ private:
     QVector<double> m_seconds;
 
     QTimer m_timer_update_table;
-    static int const m_size = 500;
-    QVector<double> m_torque;
-    QVector<double> m_rpm;
-    QVector<double> m_power;
+    static int const m_size = 2500; // 2.5 khz data -> filtering 1 sec
 
     struct AvgFilter
     {
@@ -90,13 +88,13 @@ private:
     AvgFilter m_rpm_filter;
     AvgFilter m_power_filter;
 
-
+    MotorCharacteristics m_motor_char;
 
     bool m_update_val_plot;
 
     double const m_x_axis_range = 60.0; // seconds
 
-    void updateGraphs(double &torque, double &rpm, double &timestamp, double &sampletime);
+    void updateGraphs(double torque, double rpm, double timestamp, double sampletime);
     void updateTableValues(double &torque, double &rpm, double &power);
     void logData(double &torque, double &rpm, double &timestamp,double &sampletime, double &power);
     void appendDoubleAndTrunc(QVector<double> *vec, double num, int max_size);
