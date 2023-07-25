@@ -4,6 +4,7 @@ MotorCharacteristics::MotorCharacteristics()
 {
     clearMaxTorque();
     clearMaxRpm();
+    m_power_avg = 0.0;
 }
 
 void MotorCharacteristics::clearMaxRpm()

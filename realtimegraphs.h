@@ -50,43 +50,7 @@ private:
     QVector<double> m_seconds;
 
     QTimer m_timer_update_table;
-    static int const m_size = 2500; // 2.5 khz data -> filtering 1 sec
 
-    struct AvgFilter
-    {
-        double data[m_size];
-        uint16_t index;
-        double sum;
-        uint16_t count;
-        uint16_t filter_size;
-
-        double getAvg() {return sum / count;};
-
-        void initFilter(uint16_t size)
-        {
-            memset(this, 0, sizeof(struct AvgFilter));
-
-            this->filter_size = size;
-            this->sum = 0.0;
-        }
-
-        double filterRunAvg(double newVal)
-        {
-            this->sum -= this->data[this->index];
-            this->data[this->index] = newVal;
-            this->sum += this->data[this->index];
-            this->index++;
-            this->index = this->index % this->filter_size;
-            if(this->count < this->filter_size)
-                this->count++;
-
-            return this->sum / this->count;
-        }
-    };
-
-    AvgFilter m_torque_filter;
-    AvgFilter m_rpm_filter;
-    AvgFilter m_power_filter;
 
     MotorCharacteristics m_motor_char;
 
