@@ -61,13 +61,21 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     qInfo() << "Torque (N*m)" << " " << "RPM" << " " << "Timestamp (s)" << " " << "Power (W)";
 
 
+    m_torque_filter.initFilter(m_size);
+    m_rpm_filter.initFilter(m_size);
+    m_power_filter.initFilter(m_size);
 }
+
 
 void RealTimeGraphs::clearGraphsAndBuffers()
 {
 
     ui->plot_1->graph(0)->data()->clear();
     ui->plot_2->graph(0)->data()->clear();
+
+    m_torque_filter.initFilter(m_size);
+    m_rpm_filter.initFilter(m_size);
+    m_power_filter.initFilter(m_size);
 
     ui->plot_1->replot();
     ui->plot_2->replot();
@@ -85,10 +93,8 @@ void RealTimeGraphs::updateGraphs(double &torque, double &rpm, double &timestamp
     ui->plot_2->graph(0)->addData(timestamp, torque);
 }
 
-void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &timestamp, double &sampletime, double &power)
+void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &power)
 {
-    Q_UNUSED(timestamp);
-    Q_UNUSED(sampletime);
     ui->lbl_rpm->setText(tr("RPM: %1").arg(QString::number(rpm, 'g', 6)));
     ui->lbl_torque->setText(tr("Torque (N*m): %1").arg(QString::number(torque, 'g', 6)));
     ui->lbl_power->setText(tr("Power (W): %1").arg(QString::number(power, 'g', 6)));
@@ -97,6 +103,15 @@ void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &time
 
 void RealTimeGraphs::updateTableSlot()
 {
+    static double torque_avg = 0;
+    static double rpm_avg = 0;
+    static double power_avg = 0;
+
+    torque_avg = m_torque_filter.getAvg();
+    rpm_avg = m_rpm_filter.getAvg();
+    power_avg = m_power_filter.getAvg();
+
+    updateTableValues(torque_avg, rpm_avg, power_avg);
 
 }
 
@@ -127,7 +142,8 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 
     for(auto &data_dict: data){
         torque = ((data_dict["Torque"] / 8388608.f) - 1.0f)*(5.0f / (float)(1 << m_params.gain));
-        torque = (torque - m_params.bias_x) * m_params.scale - m_params.bias_y;
+        torque = (torque - m_params.bias_x) * m_params.scale + m_params.bias_y;
+        m_torque_filter.filterRunAvg(torque);
 
         rpm = data_dict["RPM"];
 
@@ -136,9 +152,10 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
         sampletime = data_dict["Sampletime"];
 
         power = torque * rpm / 9550.0;
+        m_power_filter.filterRunAvg(power);
         rpm = rpm * 1.58;
+        m_rpm_filter.filterRunAvg(rpm);
 
-        updateTableValues(torque, rpm, timestamp, sampletime, power);
         updateGraphs(torque, rpm, timestamp, sampletime);
         logData(torque, rpm, timestamp, sampletime, power);
         m_update_val_plot = true;
@@ -192,7 +209,14 @@ void RealTimeGraphs::timerSlot()
 
 }
 
+void RealTimeGraphs::appendDoubleAndTrunc(QVector<double> *vec, double num, int max_size)
+{
+    vec->append(num);
 
+    if(vec->size() > max_size){
+        vec->remove(0, vec->size() - max_size);
+    }
+}
 
 
 void RealTimeGraphs::setParamRequest(SettingsDialog::Parameters params)

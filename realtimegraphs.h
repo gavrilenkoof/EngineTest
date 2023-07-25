@@ -20,8 +20,10 @@ public:
     explicit RealTimeGraphs(QWidget *parent = nullptr);
     ~RealTimeGraphs();
 
-    void appendDoubleAndTrunc(QVector<double> *vec, double num, int max_size);
     void clearGraphsAndBuffers();
+
+
+
 
 private slots:
     void timerSlot();
@@ -47,19 +49,57 @@ private:
     QVector<double> m_seconds;
 
     QTimer m_timer_update_table;
-    static int const size = 500;
-//    QVector<double> m_torque;
-//    QVector<double> m_rpm;
-//    QVector<double> m_timestamp;
-//    QVector<double> m_sampletime;
+    static int const m_size = 500;
+    QVector<double> m_torque;
+    QVector<double> m_rpm;
+    QVector<double> m_power;
+
+    struct AvgFilter
+    {
+        double data[m_size];
+        uint16_t index;
+        double sum;
+        uint16_t count;
+        uint16_t filter_size;
+
+        double getAvg() {return sum / count;};
+
+        void initFilter(uint16_t size)
+        {
+            memset(this, 0, sizeof(struct AvgFilter));
+
+            this->filter_size = size;
+            this->sum = 0.0;
+        }
+
+        double filterRunAvg(double newVal)
+        {
+            this->sum -= this->data[this->index];
+            this->data[this->index] = newVal;
+            this->sum += this->data[this->index];
+            this->index++;
+            this->index = this->index % this->filter_size;
+            if(this->count < this->filter_size)
+                this->count++;
+
+            return this->sum / this->count;
+        }
+    };
+
+    AvgFilter m_torque_filter;
+    AvgFilter m_rpm_filter;
+    AvgFilter m_power_filter;
+
+
 
     bool m_update_val_plot;
 
     double const m_x_axis_range = 60.0; // seconds
 
     void updateGraphs(double &torque, double &rpm, double &timestamp, double &sampletime);
-    void updateTableValues(double &torque, double &rpm, double &timestamp,double &sampletime, double &power);
+    void updateTableValues(double &torque, double &rpm, double &power);
     void logData(double &torque, double &rpm, double &timestamp,double &sampletime, double &power);
+    void appendDoubleAndTrunc(QVector<double> *vec, double num, int max_size);
 
     SettingsDialog::Parameters m_params;
 
