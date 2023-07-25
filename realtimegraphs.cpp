@@ -58,7 +58,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     m_timer_update_table.start(100);
 
     // Init log table in file
-    qInfo() << "Torque (N*m)" << " " << "RPM" << " " << "Timestamp (s)" << " " << "Power (W)";
+    qInfo() << "Torque (N*m)" << " " << "Torque avg (N*m)" << " " << "RPM" << " " << "RPM avg" << "Power avg (W)" << " " << "Timestamp (s)";
 
     m_motor_char.m_torque_filter.initFilter();
     m_motor_char.m_rpm_filter.initFilter();
@@ -119,16 +119,18 @@ void RealTimeGraphs::updateTableSlot()
 }
 
 
-void RealTimeGraphs::logData(double &torque, double &rpm, double &timestamp,double &sampletime, double &power)
+void RealTimeGraphs::logData(double torque, double torque_avg, double rpm, double rpm_avg, double timestamp, double power_avg)
 {
-    Q_UNUSED(sampletime);
+
 #ifdef RELEASE
-    qInfo() << torque << " " << rpm << " " << timestamp << " " << power;
+    qInfo() << torque << " " << torque_avg << " " << rpm << rpm_avg << " " << power_avg << " " << timestamp;
 #else
     Q_UNUSED(torque);
+    Q_UNUSED(torque_avg);
     Q_UNUSED(rpm);
+    Q_UNUSED(rpm_avg);
     Q_UNUSED(timestamp);
-    Q_UNUSED(power);
+    Q_UNUSED(power_avg);
 #endif
 
 }
@@ -140,7 +142,6 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
     static double rpm = 0;
     static double timestamp = 0;
     static double sampletime = 0;
-    static double power = 0;
 
 
     for(auto &data_dict: data){
@@ -150,21 +151,20 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 
         rpm = data_dict["RPM"];
 
-        timestamp = data_dict["Timestamp"] / 1000000.0; // us to sec with point
+        timestamp = data_dict["Timestamp"] / 1000000.0; // us to s with point
         sampletime = data_dict["Sampletime"];
 
         rpm = rpm * 1.58;
         m_motor_char.m_rpm_filter.filterRunAvg(rpm);
 
-        power = m_motor_char.m_torque_filter.getAvg() * m_motor_char.m_rpm_filter.getAvg() / 9550.0;
+        m_motor_char.m_power_avg = 1.0 * m_motor_char.m_torque_filter.getAvg() * m_motor_char.m_rpm_filter.getAvg() / 9550.0;
 
         m_motor_char.checkMaxTorque(m_motor_char.m_torque_filter.getAvg(), m_motor_char.m_rpm_filter.getAvg());
         m_motor_char.checkMaxRpm(m_motor_char.m_rpm_filter.getAvg());
 
-        updateGraphs(m_motor_char.m_torque_filter.getAvg(), m_motor_char.m_rpm_filter.getAvg(), timestamp, sampletime);
-        logData(torque, rpm, timestamp, sampletime, power);
+        updateGraphs(m_motor_char.m_torque_filter.getAvg(), rpm, timestamp, sampletime);
+        logData(torque, m_motor_char.m_torque_filter.getAvg(), rpm, m_motor_char.m_rpm_filter.getAvg(), m_motor_char.m_power_avg, timestamp);
         m_update_val_plot = true;
-
     }
 
 
