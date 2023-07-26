@@ -64,8 +64,6 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     m_motor_char.m_rpm_filter.initFilter();
     m_motor_char.m_power_filter.initFilter();
 
-
-
 }
 
 
@@ -75,9 +73,9 @@ void RealTimeGraphs::clearGraphsAndBuffers()
     ui->plot_1->graph(0)->data()->clear();
     ui->plot_2->graph(0)->data()->clear();
 
-    m_motor_char.m_torque_filter.initFilter();
-    m_motor_char.m_rpm_filter.initFilter();
-    m_motor_char.m_power_filter.initFilter();
+    m_motor_char.m_torque_filter.initFilter(m_motor_char.m_current_filter_size);
+    m_motor_char.m_rpm_filter.initFilter(m_motor_char.m_current_filter_size);
+    m_motor_char.m_power_filter.initFilter(m_motor_char.m_current_filter_size);
 
     ui->plot_1->replot();
     ui->plot_2->replot();
@@ -115,7 +113,6 @@ void RealTimeGraphs::updateTableSlot()
     power_avg = m_motor_char.m_power_avg;
 
     updateTableValues(torque_avg, rpm_avg, power_avg);
-
 }
 
 
@@ -157,7 +154,7 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
         rpm = rpm * 1.58;
         m_motor_char.m_rpm_filter.filterRunAvg(rpm);
 
-        m_motor_char.m_power_avg = 1.0 * m_motor_char.m_torque_filter.getAvg() * m_motor_char.m_rpm_filter.getAvg() / 9550.0;
+        m_motor_char.m_power_avg = m_params.efficiency_factor * m_motor_char.m_torque_filter.getAvg() * m_motor_char.m_rpm_filter.getAvg() / 9550.0;
 
         m_motor_char.checkMaxTorque(m_motor_char.m_torque_filter.getAvg(), m_motor_char.m_rpm_filter.getAvg());
         m_motor_char.checkMaxRpm(m_motor_char.m_rpm_filter.getAvg());
@@ -166,8 +163,6 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
         logData(torque, m_motor_char.m_torque_filter.getAvg(), rpm, m_motor_char.m_rpm_filter.getAvg(), m_motor_char.m_power_avg, timestamp);
         m_update_val_plot = true;
     }
-
-
 
 }
 
@@ -230,4 +225,18 @@ void RealTimeGraphs::setParamRequest(SettingsDialog::Parameters params)
     m_params.scale = params.scale;
     m_params.bias_x = params.bias_x;
     m_params.bias_y = params.bias_y;
+    m_params.time_avg_values = params.time_avg_values;
+    m_params.efficiency_factor = params.efficiency_factor;
+
+    double time_ms = m_params.time_avg_values / 1000.0; // convert to s
+    m_motor_char.m_current_filter_size = (m_motor_char.max_size * time_ms) / 2 ;
+
+    if(m_motor_char.m_current_filter_size >= m_motor_char.max_size)
+        m_motor_char.m_current_filter_size = m_motor_char.max_size;
+    else if(m_motor_char.m_current_filter_size <= 0)
+        m_motor_char.m_current_filter_size = 1;
+
+    m_motor_char.m_torque_filter.initFilter(m_motor_char.m_current_filter_size);
+    m_motor_char.m_rpm_filter.initFilter(m_motor_char.m_current_filter_size);
+    m_motor_char.m_power_filter.initFilter(m_motor_char.m_current_filter_size);
 }

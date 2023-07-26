@@ -14,11 +14,14 @@ public:
     void checkMaxTorque(double torque, double rpm);
     void checkMaxRpm(double rpm);
 
-    static int const m_size = 250; // 2.5 khz data - 1 s -> 250 filtering - 100 ms
+    static int const data_freq = 2500; // 2500 Hz
+    static int const max_size = data_freq * 2; // 2.5 khz data - 1 s -> 2500 * 2 - 2 s
+
+    int m_current_filter_size = 1;
 
     struct AvgFilter
     {
-        double data[m_size];
+        double data[max_size];
         uint16_t index;
         double sum;
         uint16_t count;
@@ -26,11 +29,11 @@ public:
 
         double getAvg() {return sum / count;};
 
-        void initFilter()
+        void initFilter(int size = max_size)
         {
             memset(this, 0, sizeof(struct AvgFilter));
 
-            this->filter_size = m_size;
+            this->filter_size = size;
             this->sum = 0.0;
         }
 
