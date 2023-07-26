@@ -60,7 +60,7 @@ private:
 
     void updateGraphs(double torque, double rpm, double timestamp, double sampletime);
     void updateTableValues(double &torque, double &rpm, double &power);
-    void logData(double torque, double torque_avg, double rpm, double rpm_avg, double timestamp, double power_avg);
+    void logData(double torque, double torque_avg, double rpm, double rpm_avg, double power_avg, double timestamp);
     void appendDoubleAndTrunc(QVector<double> *vec, double num, int max_size);
 
     SettingsDialog::Parameters m_params;

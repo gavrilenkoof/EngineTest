@@ -58,7 +58,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     m_timer_update_table.start(100);
 
     // Init log table in file
-    qInfo() << "Torque (N*m)" << " " << "Torque avg (N*m)" << " " << "RPM" << " " << "RPM avg" << "Power avg (W)" << " " << "Timestamp (s)";
+    qInfo() << "Torque (N*m)" << " " << "Torque avg (N*m)" << " " << "RPM" << " " << "RPM avg" << " " << "Power avg (W)" << " " << "Timestamp (s)";
 
     m_motor_char.m_torque_filter.initFilter();
     m_motor_char.m_rpm_filter.initFilter();
@@ -116,11 +116,11 @@ void RealTimeGraphs::updateTableSlot()
 }
 
 
-void RealTimeGraphs::logData(double torque, double torque_avg, double rpm, double rpm_avg, double timestamp, double power_avg)
+void RealTimeGraphs::logData(double torque, double torque_avg, double rpm, double rpm_avg, double power_avg, double timestamp)
 {
 
 #ifdef RELEASE
-    qInfo() << torque << " " << torque_avg << " " << rpm << rpm_avg << " " << power_avg << " " << timestamp;
+    qInfo() << torque << " " << torque_avg << " " << rpm << " " <<  rpm_avg << " " << power_avg << " " << timestamp;
 #else
     Q_UNUSED(torque);
     Q_UNUSED(torque_avg);
