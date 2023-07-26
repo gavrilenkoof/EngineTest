@@ -18,8 +18,8 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle("Parameters");
 
-    ui->line_param6->setReadOnly(true);
-    ui->line_param7->setReadOnly(true);
+//    ui->line_param6->setReadOnly(true);
+//    ui->line_param7->setReadOnly(true);
     ui->line_param8->setReadOnly(true);
     ui->line_param9->setReadOnly(true);
     ui->line_param10->setReadOnly(true);
@@ -52,6 +52,8 @@ void SettingsDialog::readSettings()
     m_params.bias_x = m_settings.value("/bias_x", 0.0).toDouble();
     m_params.bias_y = m_settings.value("/bias_y", -0.00001).toDouble();
     m_params.baudrate = m_settings.value("/baudrate", 1000000).toUInt();
+    m_params.time_avg_values = m_settings.value("/time_avg_values", 1000).toUInt();
+    m_params.efficiency_factor = m_settings.value("/efficiency_factor", 1.0).toDouble();
 
     m_settings.endGroup();
 
@@ -68,6 +70,8 @@ void SettingsDialog::writeSettings()
     m_settings.setValue("/bias_x", m_params.bias_x);
     m_settings.setValue("/bias_y", m_params.bias_y);
     m_settings.setValue("/baudrate", m_params.baudrate);
+    m_settings.setValue("/time_avg_values", m_params.time_avg_values);
+    m_settings.setValue("/efficiency_factor", m_params.efficiency_factor);
 
     m_settings.endGroup();
 }
@@ -79,6 +83,8 @@ void SettingsDialog::fillInfo(SettingsDialog::Parameters &params)
     ui->line_param3->setText(tr("%1").arg(QString::number(params.bias_x, 'g')));
     ui->line_param4->setText(tr("%1").arg(QString::number(params.bias_y, 'g')));
     ui->line_param5->setText(tr("%1").arg(QString::number(params.baudrate)));
+    ui->line_param6->setText(tr("%1").arg(QString::number(params.time_avg_values)));
+    ui->line_param7->setText(tr("%1").arg(QString::number(params.efficiency_factor)));
 
     ui->lbl_status->setText("Status: get parameters");
 }
@@ -99,6 +105,8 @@ void SettingsDialog::setParamsPrepare()
         m_params.bias_x = ui->line_param3->text().toDouble();
         m_params.bias_y = ui->line_param4->text().toDouble();
         m_params.baudrate = ui->line_param5->text().toInt();
+        m_params.time_avg_values = ui->line_param6->text().toUInt();
+        m_params.efficiency_factor = ui->line_param7->text().toDouble();
 
         uploadParamsToGraphs();
     }

@@ -30,6 +30,8 @@ public:
         double bias_x;
         double bias_y;
         qint32 baudrate;
+        uint16_t time_avg_values;
+        double efficiency_factor;
     };
 
     explicit SettingsDialog(QWidget *parent = nullptr);

@@ -9,7 +9,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
 
     ui->lbl_torque->setText("Torque (N*m): ");
     ui->lbl_rpm->setText("RPM: ");
-    ui->label->setText("");
+    ui->lbl_power->setText("Power (W): ");
     ui->label_2->setText("");
 
     // Configuration first graph
@@ -30,21 +30,13 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->plot_1->setVisible(true);
 
 
-//    m_tag1 = new AxisTag(ui->plot_1->graph(0)->valueAxis());
-//    m_tag1->setPen(ui->plot_1->graph(0)->pen());
-//    m_tag1->setText("0");
-
-
     // Configuration second graph
     ui->plot_2->yAxis->setTickLabels(false);
     ui->plot_2->yAxis2->setVisible(true);
     ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(20);
     ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setLabel("Torque (N*m)");
     ui->plot_2->axisRect()->axis(QCPAxis::atBottom, 0)->setLabel("Seconds (s)");
-//    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setNumberPrecision(2);
     ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setTickLabelPadding(10);
-//    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setNumberFormat("f");  // TODO FIX moving yaxis2
-//    ui->plot_2->axisRect()->axis(QCPAxis::atRight, 0)->setRange(-5, 5);
 
     ui->plot_2->legend->setVisible(true);
     ui->plot_2->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
@@ -54,10 +46,6 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->plot_2->graph(0)->setName("Torque (N*m)");
     ui->plot_2->setVisible(true);
 
-//    m_tag2 = new AxisTag(ui->plot_2->graph(0)->valueAxis());
-//    m_tag2->setPen(ui->plot_2->graph(0)->pen());
-//    m_tag2->setText("0");
-
     m_params.gain = 1;
     m_params.scale = 0;
 
@@ -66,21 +54,28 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     connect(&m_timer_update_graphs, SIGNAL(timeout()), this, SLOT(timerSlot()));
     m_timer_update_graphs.start(1);
 
-    // Init log table in file
-    qInfo() << "Torque (N*m)" << " " << "RPM" << " " << "Timestamp (s)";
+    connect(&m_timer_update_table, SIGNAL(timeout()), this, SLOT(updateTableSlot()));
+    m_timer_update_table.start(100);
 
+    // Init log table in file
+    qInfo() << "Torque (N*m)" << " " << "Torque avg (N*m)" << " " << "RPM" << " " << "RPM avg" << " " << "Power avg (W)" << " " << "Timestamp (s)";
+
+    m_motor_char.m_torque_filter.initFilter();
+    m_motor_char.m_rpm_filter.initFilter();
+    m_motor_char.m_power_filter.initFilter();
 
 }
 
+
 void RealTimeGraphs::clearGraphsAndBuffers()
 {
-    m_torque.clear();
-    m_rpm.clear();
-    m_timestamp.clear();
-    m_sampletime.clear();
 
     ui->plot_1->graph(0)->data()->clear();
     ui->plot_2->graph(0)->data()->clear();
+
+    m_motor_char.m_torque_filter.initFilter(m_motor_char.m_current_filter_size);
+    m_motor_char.m_rpm_filter.initFilter(m_motor_char.m_current_filter_size);
+    m_motor_char.m_power_filter.initFilter(m_motor_char.m_current_filter_size);
 
     ui->plot_1->replot();
     ui->plot_2->replot();
@@ -91,31 +86,48 @@ RealTimeGraphs::~RealTimeGraphs()
     delete ui;
 }
 
-void RealTimeGraphs::updateGraphs(double &torque, double &rpm, double &timestamp,double &sampletime)
+void RealTimeGraphs::updateGraphs(double torque, double rpm, double timestamp,double sampletime)
 {
     Q_UNUSED(sampletime);
     ui->plot_1->graph(0)->addData(timestamp, rpm);
     ui->plot_2->graph(0)->addData(timestamp, torque);
 }
 
-void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &timestamp,double &sampletime)
+void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &power)
 {
-    Q_UNUSED(timestamp);
-    Q_UNUSED(sampletime);
     ui->lbl_rpm->setText(tr("RPM: %1").arg(QString::number(rpm, 'g', 6)));
     ui->lbl_torque->setText(tr("Torque (N*m): %1").arg(QString::number(torque, 'g', 6)));
+    ui->lbl_power->setText(tr("Power (W): %1").arg(QString::number(power, 'g', 6)));
 }
 
 
-void RealTimeGraphs::logData(double &torque, double &rpm, double &timestamp,double &sampletime)
+void RealTimeGraphs::updateTableSlot()
 {
-    Q_UNUSED(sampletime);
+    static double torque_avg = 0;
+    static double rpm_avg = 0;
+    static double power_avg = 0;
+
+    torque_avg = m_motor_char.m_torque_filter.getAvg();
+    rpm_avg = m_motor_char.m_rpm_filter.getAvg();
+//    power_avg = m_motor_char.m_power_filter.getAvg();
+    power_avg = m_motor_char.m_power_avg;
+
+    updateTableValues(torque_avg, rpm_avg, power_avg);
+}
+
+
+void RealTimeGraphs::logData(double torque, double torque_avg, double rpm, double rpm_avg, double power_avg, double timestamp)
+{
+
 #ifdef RELEASE
-    qInfo() << torque << " " << rpm << " " << timestamp;
+    qInfo() << torque << " " << torque_avg << " " << rpm << " " <<  rpm_avg << " " << power_avg << " " << timestamp;
 #else
     Q_UNUSED(torque);
+    Q_UNUSED(torque_avg);
     Q_UNUSED(rpm);
+    Q_UNUSED(rpm_avg);
     Q_UNUSED(timestamp);
+    Q_UNUSED(power_avg);
 #endif
 
 }
@@ -123,7 +135,6 @@ void RealTimeGraphs::logData(double &torque, double &rpm, double &timestamp,doub
 void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 {
 
-//    static int const size = 500;
     static double torque = 0;
     static double rpm = 0;
     static double timestamp = 0;
@@ -132,36 +143,35 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
 
     for(auto &data_dict: data){
         torque = ((data_dict["Torque"] / 8388608.f) - 1.0f)*(5.0f / (float)(1 << m_params.gain));
-        torque = (torque - m_params.bias_x) * m_params.scale - m_params.bias_y;
-//        appendDoubleAndTrunc(&m_torque, torque, size);
+        torque = (torque - m_params.bias_x) * m_params.scale + m_params.bias_y;
+        m_motor_char.m_torque_filter.filterRunAvg(torque);
 
         rpm = data_dict["RPM"];
-//        appendDoubleAndTrunc(&m_rpm, rpm, size);
 
-        timestamp = data_dict["Timestamp"] / 1000000.0; // us to sec with point
-//        appendDoubleAndTrunc(&m_timestamp, timestamp, size);
-
+        timestamp = data_dict["Timestamp"] / 1000000.0; // us to s with point
         sampletime = data_dict["Sampletime"];
-//        appendDoubleAndTrunc(&m_sampletime, sampletime, size);
 
-        updateTableValues(torque, rpm, timestamp, sampletime);
-        updateGraphs(torque, rpm, timestamp, sampletime);
-        logData(torque, rpm, timestamp, sampletime);
+        rpm = rpm * 1.58;
+        m_motor_char.m_rpm_filter.filterRunAvg(rpm);
+
+        m_motor_char.m_power_avg = m_params.efficiency_factor * m_motor_char.m_torque_filter.getAvg() * m_motor_char.m_rpm_filter.getAvg() / 9550.0;
+
+        m_motor_char.checkMaxTorque(m_motor_char.m_torque_filter.getAvg(), m_motor_char.m_rpm_filter.getAvg());
+        m_motor_char.checkMaxRpm(m_motor_char.m_rpm_filter.getAvg());
+
+        updateGraphs(m_motor_char.m_torque_filter.getAvg(), rpm, timestamp, sampletime);
+        logData(torque, m_motor_char.m_torque_filter.getAvg(), rpm, m_motor_char.m_rpm_filter.getAvg(), m_motor_char.m_power_avg, timestamp);
         m_update_val_plot = true;
-
     }
-
-//    updateGraphs(torque, rpm, timestamp, sampletime);
-//    m_update_val_plot = true;
 
 }
 
 
 void RealTimeGraphs::timerSlot()
 {
-    static bool found_range = false;
-    static double new_upper = 0.0;
-    static double new_lower = 0.0;
+//    static bool found_range = false;
+//    static double new_upper = 0.0;
+//    static double new_lower = 0.0;
 
     if(m_update_val_plot){
         ui->plot_1->xAxis->rescale(true);
@@ -170,12 +180,12 @@ void RealTimeGraphs::timerSlot()
         ui->plot_2->xAxis->rescale(true);
         ui->plot_2->yAxis2->rescale(true);
 
-        if(ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) > m_x_axis_range){
+//        if(ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) > m_x_axis_range){
             ui->plot_1->xAxis->setRange(ui->plot_1->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
             ui->plot_2->xAxis->setRange(ui->plot_2->xAxis->range().upper, m_x_axis_range, Qt::AlignRight);
             ui->plot_1->graph(0)->data().data()->removeBefore((ui->plot_1->graph(0)->dataMainKey(ui->plot_1->graph(0)->dataCount() - 1) - m_x_axis_range));
             ui->plot_2->graph(0)->data().data()->removeBefore((ui->plot_2->graph(0)->dataMainKey(ui->plot_2->graph(0)->dataCount() - 1) - m_x_axis_range));
-        }
+//        }
 
 //        m_range =  ui->plot_1->graph(0)->getValueRange(found_range);
 //        if(found_range){
@@ -194,20 +204,18 @@ void RealTimeGraphs::timerSlot()
         ui->plot_1->replot();
         ui->plot_2->replot();
 
-
         m_update_val_plot = false;
     }
 
 }
 
-
 void RealTimeGraphs::appendDoubleAndTrunc(QVector<double> *vec, double num, int max_size)
 {
-        vec->append(num);
+    vec->append(num);
 
-        if(vec->size() > max_size){
-            vec->remove(0, vec->size() - max_size);
-        }
+    if(vec->size() > max_size){
+        vec->remove(0, vec->size() - max_size);
+    }
 }
 
 
@@ -217,4 +225,18 @@ void RealTimeGraphs::setParamRequest(SettingsDialog::Parameters params)
     m_params.scale = params.scale;
     m_params.bias_x = params.bias_x;
     m_params.bias_y = params.bias_y;
+    m_params.time_avg_values = params.time_avg_values;
+    m_params.efficiency_factor = params.efficiency_factor;
+
+    double time_ms = m_params.time_avg_values / 1000.0; // convert to s
+    m_motor_char.m_current_filter_size = (m_motor_char.max_size * time_ms) / 2 ;
+
+    if(m_motor_char.m_current_filter_size >= m_motor_char.max_size)
+        m_motor_char.m_current_filter_size = m_motor_char.max_size;
+    else if(m_motor_char.m_current_filter_size <= 0)
+        m_motor_char.m_current_filter_size = 1;
+
+    m_motor_char.m_torque_filter.initFilter(m_motor_char.m_current_filter_size);
+    m_motor_char.m_rpm_filter.initFilter(m_motor_char.m_current_filter_size);
+    m_motor_char.m_power_filter.initFilter(m_motor_char.m_current_filter_size);
 }

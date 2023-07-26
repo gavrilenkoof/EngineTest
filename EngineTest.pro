@@ -9,11 +9,24 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 QMAKE_LFLAGS += -no-pie
 
+CONFIG(debug, debug|release) {
+
+} else {
+    DEFINES += RELEASE
+}
+
+win32: {
+    QMAKE_CXXFLAGS += -Wa,-mbig-obj
+    RC_ICONS = icons/engine.ico
+}
+
+
 SOURCES += \
     axistag.cpp \
     logger.cpp \
     main.cpp \
     mainwindow.cpp \
+    motorcharacteristics.cpp \
     qcustomplot.cpp \
     realtimegraphs.cpp \
     serialport.cpp \
@@ -23,6 +36,7 @@ HEADERS += \
     axistag.h \
     logger.h \
     mainwindow.h \
+    motorcharacteristics.h \
     qcustomplot.h \
     realtimegraphs.h \
     serialport.h \
@@ -37,3 +51,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    res_icons.qrc
