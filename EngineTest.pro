@@ -11,6 +11,7 @@ QMAKE_LFLAGS += -no-pie
 
 win32: {
     QMAKE_CXXFLAGS += -Wa,-mbig-obj
+    RC_ICONS = icons/engine.ico
 }
 
 
@@ -45,3 +46,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    res_icons.qrc

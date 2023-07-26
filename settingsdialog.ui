@@ -156,14 +156,14 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="lbl_param7">
+       <widget class="QLabel" name="lbl_efficiency_factor">
         <property name="font">
          <font>
           <pointsize>9</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Not used:</string>
+         <string>Efficiency factor</string>
         </property>
        </widget>
       </item>
@@ -177,14 +177,14 @@
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QLabel" name="lbl_param6">
+       <widget class="QLabel" name="lbl_avg_time_values">
         <property name="font">
          <font>
           <pointsize>9</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Not used:</string>
+         <string>Time avg (ms)</string>
         </property>
        </widget>
       </item>
