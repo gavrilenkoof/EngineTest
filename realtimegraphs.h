@@ -59,7 +59,8 @@ private:
     double const m_x_axis_range = 60.0; // seconds
 
     void updateGraphs(double torque, double rpm, double timestamp, double sampletime);
-    void updateTableValues(double &torque, double &rpm, double &power);
+    void updateTableValuesPeriod(double &torque, double &rpm, double &power);
+    void updateTableValuesFast(double &torque);
     void logData(double torque, double torque_avg, double rpm, double rpm_avg, double power_avg, double timestamp);
     void appendDoubleAndTrunc(QVector<double> *vec, double num, int max_size);
 

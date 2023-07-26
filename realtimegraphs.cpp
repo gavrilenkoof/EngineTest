@@ -10,7 +10,7 @@ RealTimeGraphs::RealTimeGraphs(QWidget *parent) :
     ui->lbl_torque->setText("Torque (N*m): ");
     ui->lbl_rpm->setText("RPM: ");
     ui->lbl_power->setText("Power (W): ");
-    ui->label_2->setText("");
+    ui->lbl_torque_avg->setText("Torque AVG (N*m): ");
 
     // Configuration first graph
     ui->plot_1->yAxis->setTickLabels(false);
@@ -93,11 +93,16 @@ void RealTimeGraphs::updateGraphs(double torque, double rpm, double timestamp,do
     ui->plot_2->graph(0)->addData(timestamp, torque);
 }
 
-void RealTimeGraphs::updateTableValues(double &torque, double &rpm, double &power)
+void RealTimeGraphs::updateTableValuesPeriod(double &torque, double &rpm, double &power)
 {
     ui->lbl_rpm->setText(tr("RPM: %1").arg(QString::number(rpm, 'g', 6)));
-    ui->lbl_torque->setText(tr("Torque (N*m): %1").arg(QString::number(torque, 'g', 6)));
+    ui->lbl_torque_avg->setText(tr("Torque avg (N*m): %1").arg(QString::number(torque, 'g', 6)));
     ui->lbl_power->setText(tr("Power (W): %1").arg(QString::number(power, 'g', 6)));
+}
+
+void RealTimeGraphs::updateTableValuesFast(double &torque)
+{
+    ui->lbl_torque->setText(tr("Torque (N*m): %1").arg(QString::number(torque, 'g', 6)));
 }
 
 
@@ -109,10 +114,9 @@ void RealTimeGraphs::updateTableSlot()
 
     torque_avg = m_motor_char.m_torque_filter.getAvg();
     rpm_avg = m_motor_char.m_rpm_filter.getAvg();
-//    power_avg = m_motor_char.m_power_filter.getAvg();
     power_avg = m_motor_char.m_power_avg;
 
-    updateTableValues(torque_avg, rpm_avg, power_avg);
+    updateTableValuesPeriod(torque_avg, rpm_avg, power_avg);
 }
 
 
@@ -160,6 +164,7 @@ void RealTimeGraphs::newDataHandler(QVector<QMap<QString, uint64_t>> data)
         m_motor_char.checkMaxRpm(m_motor_char.m_rpm_filter.getAvg());
 
         updateGraphs(m_motor_char.m_torque_filter.getAvg(), rpm, timestamp, sampletime);
+        updateTableValuesFast(torque);
         logData(torque, m_motor_char.m_torque_filter.getAvg(), rpm, m_motor_char.m_rpm_filter.getAvg(), m_motor_char.m_power_avg, timestamp);
         m_update_val_plot = true;
     }
